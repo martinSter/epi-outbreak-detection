@@ -143,7 +143,12 @@ void sir () {
 	while (g.nheap) infect();
 
 	// set time of infected and recovered nodes back to NONE
-	for (i = 0; i < g.ns; i++) n[g.s[i]].heap = n[g.s[i]].time = NONE;
+	for (i = 0; i < g.ns; i++) {
+        // increase ni for all nodes in g.s
+        n[g.s[i]].ni++;
+        // set heap and time back to NONE
+        n[g.s[i]].heap = n[g.s[i]].time = NONE;
+    }
     
 }
 
@@ -159,13 +164,21 @@ void simulate () {
     g.s = calloc(g.n, sizeof(unsigned int));
 
 	// initialize so that heap and time of every node are set to infinity (or NONE)
-	for (i = 0; i < g.n; i++) n[i].heap = n[i].time = NONE;
+	for (i = 0; i < g.n; i++) {
+        // initialize all ni to 0
+        n[i].ni = 0;
+        // set heap and time for every node to NONE
+        n[i].heap = n[i].time = NONE;
+    }
 	
 	// run the simulations
 	for (i = 0; i < NSIM; i++) {
         
         // run sir() NSIM times
 		sir();
+        
+        // print progress bar
+        progress_bar("Simulation progress: ", i, NSIM);
 
 	}
     

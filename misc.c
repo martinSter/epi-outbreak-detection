@@ -174,3 +174,33 @@ void read_data (FILE *fp) {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// function to print progress bar
+
+void progress_bar (char label[], int step, int total) {
+    
+    //progress width
+    const int pwidth = 72;
+
+    //minus label len
+    int width = pwidth - strlen(label);
+    int pos = (step * width) / total;
+    
+    // compute percentage
+    int percent = ( step * 100 ) / total;
+
+    // print label of progress bar
+    printf("%s[", label);
+
+    //fill progress bar with =
+    for ( int i = 0; i < pos; i++ )  printf( "%c", '=' );
+
+    //fill progress bar with spaces
+    printf("%*c", width - pos + 1, ']');
+    printf(" %3d%%\r", percent);
+    
+    // force print operation to complete before the program moves to next task
+    fflush(stdout);
+
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

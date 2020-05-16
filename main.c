@@ -69,6 +69,19 @@ int main (int argc, char *argv[]) {
     
     simulate();
     
+    // Initialize maximum element 
+    unsigned int max_val = n[0].ni, max_node = 0; 
+  
+    // Traverse array elements from second and 
+    // compare every element with current max   
+    for (i = 1; i < g.n; i++) {
+        if (n[i].ni > max_val) {
+            max_val = n[i].ni;
+            max_node = i;
+        }
+    }
+    
+    printf("Node %u discovers the max. number of scenarios (%u)\n", max_node, max_val);
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
@@ -83,7 +96,7 @@ int main (int argc, char *argv[]) {
 	}
     
     // free array n of NODE structs and heap and s (only heap and s are defined as pointers in GLOBALS)
-	free(n); free(g.heap); free(g.s);
+	free(n); free(g.heap);
 	 
 	return 0;
 }
