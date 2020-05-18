@@ -127,7 +127,7 @@ void infect () {
 void sir () {
     
     // declare unsigned integers
-	unsigned int i, source;
+	unsigned int source;
 	
     // initialize size of outbreak to 0
 	g.ns = 0;
@@ -144,21 +144,6 @@ void sir () {
 
 	// run the outbreak as long as heap contains elements
 	while (g.nheap) infect();
-
-	// set time of infected and recovered nodes back to NONE
-	for (i = 0; i < g.ns; i++) {
-        // check if we need to allocate more memory to 'inf'
-        if (alloc[g.s[i]] <= n[g.s[i]].ni) {
-            // add 1000 to alloc
-            alloc[g.s[i]] += 1000;
-            // reallocate memory of 'inf'
-            n[g.s[i]].inf = realloc(n[g.s[i]].inf, alloc[g.s[i]] * sizeof(unsigned int));
-        }        
-        // increase ni for all nodes in g.s
-        n[g.s[i]].inf[n[g.s[i]].ni++] = i;
-        // set heap and time back to NONE
-        n[g.s[i]].heap = n[g.s[i]].time = NONE;
-    }
     
 }
 
@@ -168,7 +153,7 @@ void sir () {
 void simulate () {
     
     // declare integers i
-	unsigned int i;
+	unsigned int i, j;
     
     // allocate memory to g.s (array containing the nodes that are infected/recovered
     g.s = calloc(g.n, sizeof(unsigned int));
@@ -190,11 +175,33 @@ void simulate () {
 	
 	// run the simulations
 	for (i = 0; i < NSIM; i++) {
+        
         // run sir() NSIM times
 		sir();
+        
+        // set time of infected and recovered nodes back to NONE
+        for (j = 0; j < g.ns; j++) {
+            
+            // check if we need to allocate more memory to 'inf'
+            if (alloc[g.s[j]] <= n[g.s[j]].ni) {
+                // add 1000 to alloc
+                alloc[g.s[j]] += 1000;
+                // reallocate memory of 'inf'
+                n[g.s[j]].inf = realloc(n[g.s[j]].inf, alloc[g.s[j]] * sizeof(unsigned int));
+            }
+        
+            // increase ni for all nodes in g.s and add i to inf
+            n[g.s[j]].inf[n[g.s[j]].ni++] = i;
+            
+            // set heap and time back to NONE
+            n[g.s[j]].heap = n[g.s[j]].time = NONE;
+        
+        }
+    
         // print progress bar
         progress_bar("Simulation progress: ", i, NSIM);
-	}
+	
+    }
     
     // since not all simulation runs infect every node,
     // we reallocate memory correctly

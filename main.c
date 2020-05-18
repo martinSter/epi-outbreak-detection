@@ -84,6 +84,8 @@ int main (int argc, char *argv[]) {
     
     printf("Node %u discovers the max. number of scenarios (%u)\n", max_node, max_val);
     
+    for (i = 1; i < 10; i++) printf("Sim. ID: %d\n", n[11134].inf[i]);
+    
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
 	// cleaning up
