@@ -13,7 +13,7 @@
 #include <string.h>
 
 // number of simulation runs
-#define NSIM 500000
+#define NSIM 50000
 
 // NONE and END are used in various ways, the only purpose of NONE < END is for the S(x) macro
 // UINT_MAX is the maximum value for an object of type unsigned int.
@@ -42,6 +42,8 @@ typedef struct GLOBALS {
 	unsigned int cutoff_source, cutoff_dur; // to get the probabilities right . .
 	// OUTBREAK STATS
 	unsigned int ns, *s;
+    // array to store optimal node order
+    unsigned int *on;
 } GLOBALS;
 
 // struct to define nodes
@@ -52,11 +54,20 @@ typedef struct NODE {
     unsigned int ni, *inf; // ni corresponds to total number of simulations that infect node, inf is an array that contains the indices of simulations that infect node
 } NODE;
 
+// struct to define node-marginal-gain pairs
+typedef struct MARGINALGAIN {
+    unsigned int node;
+    unsigned int gain;
+} MARGINALGAIN;
+
 // FUNCTION PROTOTYPES FROM ALL SOURCE FILES
 // the 'extern' statement is not absolutely necessary (the compiler implicitly assumes it for functions)
 
 // tsir.c
 extern void simulate ();
+
+// greedy.c
+extern void greedy_max ();
 
 // heap.c
 extern void up_heap (unsigned int);

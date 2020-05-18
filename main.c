@@ -66,6 +66,7 @@ int main (int argc, char *argv[]) {
 	g.heap = malloc((g.n + 1) * sizeof(unsigned int));
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // SIMULATION OF OUTBREAKS
     
     // simulate NSIM times and store scenario ID's in 'n'
     simulate();
@@ -82,13 +83,20 @@ int main (int argc, char *argv[]) {
         }
     }
     
-    printf("Node %u discovers the max. number of scenarios (%u)\n", max_node, max_val);
+    printf("\nNode %u discovers the max. number of scenarios (%u)\n", max_node, max_val);
     
     for (i = 1; i < 10; i++) printf("Sim. ID: %d\n", n[11134].inf[i]);
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // GREEDY MAXIMIZATION
     
-	// cleaning up
+    greedy_max();
+    
+    
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // CLEANING UP
+    
+	// deallocate memory
 	for (i = 0; i < g.n; i++) {
 		for (j = 0; j < n[i].deg; j++) free(n[i].t[j]);
         // free all arrays in NODE struct n
@@ -99,7 +107,7 @@ int main (int argc, char *argv[]) {
 	}
     
     // free array n of NODE structs and heap and s (only heap and s are defined as pointers in GLOBALS)
-	free(n); free(g.heap);
+	free(n); free(g.heap); free(g.on);
 	 
 	return 0;
 }

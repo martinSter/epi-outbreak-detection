@@ -5,10 +5,10 @@
 #include "main.h"
 
 // declare g as a GLOBALS struct
-GLOBALS g;
+extern GLOBALS g;
 
 // declare n as a array of NODE structs
-NODE *n;
+extern NODE *n;
 
 // this is an array that helps managing the size of the 'inf' arrays
 unsigned int *alloc;

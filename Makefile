@@ -3,7 +3,7 @@ CFLAGS = -W -Wall -DTIME -Ofast -march=native
 LDFLAGS = 
 CC = gcc
 
-OBJ1 = o/main.o o/tsir.o o/misc.o o/heap.o o/quick.o o/pcg_rnd.o
+OBJ1 = o/main.o o/tsir.o o/misc.o o/heap.o o/quick.o o/pcg_rnd.o o/greedy.o
 
 all : main
 
@@ -27,3 +27,6 @@ o/quick.o : $(SRC)/quick.c $(SRC)/main.h $(SRC)/Makefile
 
 o/pcg_rnd.o : $(SRC)/pcg_rnd.c $(SRC)/main.h $(SRC)/Makefile
 	$(CC) $(CFLAGS) -c $(SRC)/pcg_rnd.c -o $@
+    
+o/greedy.o : $(SRC)/greedy.c $(SRC)/main.h $(SRC)/Makefile
+	$(CC) $(CFLAGS) -c $(SRC)/greedy.c -o $@
