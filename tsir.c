@@ -10,6 +10,9 @@ GLOBALS g;
 // declare n as a array of NODE structs
 NODE *n;
 
+// this is an array that helps managing the size of the 'inf' arrays
+unsigned int *alloc;
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // this routine first localizes the first contact later than 'now' in t
 // then picks the contact that can infect (a chain of Bernoulli trials)
@@ -144,8 +147,15 @@ void sir () {
 
 	// set time of infected and recovered nodes back to NONE
 	for (i = 0; i < g.ns; i++) {
+        // check if we need to allocate more memory to 'inf'
+        if (alloc[g.s[i]] <= n[g.s[i]].ni) {
+            // add 1000 to alloc
+            alloc[g.s[i]] += 1000;
+            // reallocate memory of 'inf'
+            n[g.s[i]].inf = realloc(n[g.s[i]].inf, alloc[g.s[i]] * sizeof(unsigned int));
+        }        
         // increase ni for all nodes in g.s
-        n[g.s[i]].ni++;
+        n[g.s[i]].inf[n[g.s[i]].ni++] = i;
         // set heap and time back to NONE
         n[g.s[i]].heap = n[g.s[i]].time = NONE;
     }
@@ -162,28 +172,36 @@ void simulate () {
     
     // allocate memory to g.s (array containing the nodes that are infected/recovered
     g.s = calloc(g.n, sizeof(unsigned int));
+    
+    // allocate memory to alloc
+    alloc = calloc(g.n, sizeof(unsigned int));
 
-	// initialize so that heap and time of every node are set to infinity (or NONE)
+	// initialize different things
 	for (i = 0; i < g.n; i++) {
         // initialize all ni to 0
         n[i].ni = 0;
+        // initialize alloc to 1000 for all nodes
+        alloc[i] = 1000;
+        // allocate memory for arrays that store simulation runs that infect node i
+        n[i].inf = calloc(1000, sizeof(unsigned int));
         // set heap and time for every node to NONE
         n[i].heap = n[i].time = NONE;
     }
 	
 	// run the simulations
 	for (i = 0; i < NSIM; i++) {
-        
         // run sir() NSIM times
 		sir();
-        
         // print progress bar
         progress_bar("Simulation progress: ", i, NSIM);
-
 	}
     
-    // free memory allocated to g.s
-	free(g.s);
+    // since not all simulation runs infect every node,
+    // we reallocate memory correctly
+    for (i = 0; i < g.n; i++) n[i].inf = realloc(n[i].inf, n[i].ni * sizeof(unsigned int));
+    
+    // free memory allocated to g.s and alloc
+	free(g.s); free(alloc);
 
 }
 

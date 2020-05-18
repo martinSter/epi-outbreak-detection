@@ -67,6 +67,7 @@ int main (int argc, char *argv[]) {
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
+    // simulate NSIM times and store scenario ID's in 'n'
     simulate();
     
     // Initialize maximum element 
