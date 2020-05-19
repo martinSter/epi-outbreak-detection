@@ -87,15 +87,39 @@ void quickSort(int low, int high) {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+void update_scenarios(unsigned int node) {
+    
+    // set i to current value of g.nd
+    unsigned int i = g.nd;
+    
+    // update g.nd with new scenarios from 'node'
+    g.nd += n[node].ni;
+    
+    // add 
+    for (; i < g.nd; i++) g.detected[i] = n[node].inf[i];
+    
+    // sort g.detected
+    
+    
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // ...
 
 void greedy_max () {
     
     // declare unsigned int i
-    unsigned int i;
+    unsigned int i, idx = 0, last = g.n - 1;
     
     // allocate memory to g.on (array storing the optimal node order)
     g.on = malloc(g.n * sizeof(unsigned int));
+    
+    // initialize number of detected scenarios to 0
+    g.nd = 0;
+    
+    // allocate memory to g.detected
+    g.detected = malloc(NSIM * sizeof(unsigned int));
     
     // allocate memory to mg
     mg = calloc(g.n, sizeof(MARGINALGAIN));
@@ -108,14 +132,69 @@ void greedy_max () {
     
     // sort mg (ascending order)
     // first argument is first index and second argument is last index
-    quickSort(0, g.n - 1);
+    quickSort(0, last);
     
     printf("Node %u has max. marginal gain %u\n", mg[g.n-1].node, mg[g.n-1].gain);
+    printf("Node %u has max. marginal gain %u\n", mg[g.n-2].node, mg[g.n-2].gain);
+    printf("Node %u has max. marginal gain %u\n", mg[g.n-3].node, mg[g.n-3].gain);
+    
+    while (last >= 0) {
+        
+        // special procedure for first node
+        if (idx == 0) {
+            // add node with largest marginal gain to g.on
+            g.on[idx++] = mg[last].node;
+            // save scenarios detected by this node
+            // ...
+            // decrease last by 1
+            last--;
+        }
+        
+        break;
+        
+        // get largest node
+        
+        // recompute its marginal gain
+        
+        
+        // resort mg
+        
+        // if node remains at the top of array
+        
+            // add it to g.on
+            
+            // decrease last by 1
+            
+            // save scenarios detected by this node
+            
+            // empty active
+        
+        // else
+            
+            // if node is not in active, add it
+            
+            // else, randomly sample node from all active nodes
+            
+            // etc.
+    
+    
+    
+    
+    }
+    
+    
+    
     
     // deallocate memory
     free(mg);
     
 }
+
+
+
+
+
+
 
 
 

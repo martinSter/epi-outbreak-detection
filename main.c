@@ -107,7 +107,7 @@ int main (int argc, char *argv[]) {
 	}
     
     // free array n of NODE structs and heap and s (only heap and s are defined as pointers in GLOBALS)
-	free(n); free(g.heap); free(g.on);
+	free(n); free(g.heap); free(g.on); free(g.detected);
 	 
 	return 0;
 }

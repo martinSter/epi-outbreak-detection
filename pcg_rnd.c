@@ -67,22 +67,15 @@ uint32_t pcg_32_bounded (uint32_t bound) {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 uint16_t pcg_16 () {
-    g.rmem = pcg_32();
-	return (uint16_t) g.rmem;
-}
-
-/*
-uint16_t pcg_16 () {
 	static unsigned int exist;
 
 	if (exist) {
 		exist = 0;
-		return (uint16_t) g.rmem >> 16;
+		return g.rmem >> 16;
 	}
 	exist = 1;
 	g.rmem = pcg_32();
 	return (uint16_t) g.rmem;
 }
-*/
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

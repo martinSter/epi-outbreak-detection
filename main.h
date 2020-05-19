@@ -44,6 +44,8 @@ typedef struct GLOBALS {
 	unsigned int ns, *s;
     // array to store optimal node order
     unsigned int *on;
+    // store number of detected scenarios and scenario IDs
+    unsigned int nd, *detected;
 } GLOBALS;
 
 // struct to define nodes
