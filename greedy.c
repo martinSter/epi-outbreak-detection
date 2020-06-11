@@ -105,12 +105,118 @@ void update_scenarios(unsigned int node) {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// ...
+// binary-heap routines (max-heap)
+
+// up-heap operation adjusted from heap.c (max-heap instead of min-heap)
+void heap_up (unsigned int start) {
+    
+    // initialized integers
+	unsigned int above, here = start, mem = g.heap[start];
+
+    // while loop until here is at index 1
+	while (here > 1) {
+        
+        // find parent of here
+		above = here >> 1; // = here / 2 (to find parent)
+		
+        // break loop if marginal gain of node is smaller than the one of parent
+		if (n[mem].mg <= n[g.heap[above]].mg) break;
+        
+        // swap child and parent
+		g.heap[here] = g.heap[above];
+        
+        // set heap of parent to here
+		n[g.heap[here]].heap = here;
+		
+        // now, here is above and continue loop
+		here = above;
+	}
+	
+    // when loop is done, modify heap of node
+	n[g.heap[here] = mem].heap = here;
+    
+}
+
+// down-heap operation adjusted from heap.c
+void heap_down (unsigned int here) {
+    
+    // initialize unsigned integers
+	unsigned int utmp, largest = here;
+    
+    // find left and right child
+	unsigned int left = here << 1; // = here * 2
+	unsigned int right = left | 1; // = left + 1
+
+	// if the heap property is violated vs the children, find the largest child 
+	if ((left <= g.nheap) && (n[g.heap[left]].mg > n[g.heap[largest]].mg)) largest = left;
+	if ((right <= g.nheap) && (n[g.heap[right]].mg > n[g.heap[largest]].mg)) largest = right;
+
+    // if largest is still here, the heap property is not violated and we leave function
+	if (largest == here) return;
+
+	// swap largest and here in heap
+	utmp = g.heap[largest];
+	g.heap[largest] = g.heap[here];
+	g.heap[here] = utmp;
+
+    // modify heap positions of nodes
+	n[g.heap[largest]].heap = largest;
+	n[g.heap[here]].heap = here;
+
+	// continue checking below
+	heap_down(largest);
+}
+
+// extract operation adjusted from heap.c
+void remove_root () {
+
+    // set heap position of root to END
+	n[g.heap[1]].heap = END;
+    
+    // set last element in heap as new root and decrement g.nheap
+	g.heap[1] = g.heap[g.nheap--];
+    
+    // set heap position of new root to 1
+	n[g.heap[1]].heap = 1;
+    
+    // down-heap new root
+	heap_down(1);
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// utility functions
+
+void store_detected (unsigned int v) {
+    
+    // declare unsigned int i
+    unsigned int i;
+    
+    // set all scenarios that node v detects to 1
+    for (i = 0; i < n[v].ni; i++) g.detected[n[v].inf[i]] = 1;
+    
+}
+
+void recompute_mg (unsigned int v) {
+    
+    // declare unsigned int i
+    unsigned int i;
+    
+    // set current marginal gain of node v to 0
+    n[v].mg = 0;
+    
+    // recompute marginal gain of node v
+    for (i = 0; i < n[v].ni; i++) if (g.detected[n[v].inf[i]] == 0) n[v].mg++;
+    
+}
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// greedy max. (main function)
 
 void greedy_max () {
     
     // declare unsigned int i
-    unsigned int i, idx = 0, last = g.n - 1;
+    unsigned int i, idx = 0, cn, sum=0;
     
     // allocate memory to g.on (array storing the optimal node order)
     g.on = malloc(g.n * sizeof(unsigned int));
@@ -119,25 +225,91 @@ void greedy_max () {
     g.nd = 0;
     
     // allocate memory to g.detected
-    g.detected = malloc(NSIM * sizeof(unsigned int));
+    g.detected = calloc(NSIM, sizeof(unsigned int));
     
-    // allocate memory to mg
-    mg = calloc(g.n, sizeof(MARGINALGAIN));
+    // initialize marginal gains to number of infected scenarios for every node
+    for (i = 0; i < g.n; i++) n[i].mg = n[i].ni;
     
-    // initialize mg
+    // set nheap to 0
+    g.nheap = 0;
+    
+    // initialize max-heap
     for (i = 0; i < g.n; i++) {
-        mg[i].node = i;
-        mg[i].gain = n[i].ni;
+        
+        // add node i to heap
+        g.heap[++g.nheap] = i;
+        
+        // modify heap position of node i
+        n[i].heap = g.nheap;
+        
+        // up-heap node i
+        heap_up(n[i].heap);
+        
     }
     
-    // sort mg (ascending order)
-    // first argument is first index and second argument is last index
-    quickSort(0, last);
+    // add first node in heap to g.on
+    g.on[idx++] = g.heap[1];
     
-    printf("Node %u has max. marginal gain %u\n", mg[g.n-1].node, mg[g.n-1].gain);
-    printf("Node %u has max. marginal gain %u\n", mg[g.n-2].node, mg[g.n-2].gain);
-    printf("Node %u has max. marginal gain %u\n", mg[g.n-3].node, mg[g.n-3].gain);
+    // print marginal gain of node added to g.on
+    printf("Node %u has been added with marginal gain = %u\n", g.heap[1], n[g.heap[1]].mg);
     
+    // store scenarios detected by root
+    store_detected(g.heap[1]);
+    
+    // remove root from heap
+    remove_root();
+    
+    while (g.nheap > 0) {
+        
+        // store the current root node
+        cn = g.heap[1];
+        
+        // recompute marginal gain of root node
+        recompute_mg(g.heap[1]);
+        
+        // down-heap root if necessary
+        heap_down(1);
+        
+        // if former root is still on top of heap, we add it to g.on
+        if (g.heap[1] == cn) {
+            
+            // add root to g.on
+            g.on[idx++] = g.heap[1];
+            
+            // print marginal gain of node added to g.on
+            //printf("Node %u has been added with marginal gain = %u\n", g.heap[1], n[g.heap[1]].mg);
+            
+            // store scenarios detected by root
+            store_detected(g.heap[1]);
+            
+            // remove root from heap
+            remove_root();
+            
+        }
+        
+    }
+    
+    for (i = 0; i < NSIM; i++) sum += g.detected[i];
+    printf("Number of detected scenarios is %u\n", sum);
+    
+    
+    
+    //printf("Node %u has max. marginal gain %u\n", g.heap[1], n[g.heap[1]].mg);
+    //recompute_mg(g.heap[1]);
+    //printf("Node %u has max. marginal gain %u\n", g.heap[1], n[g.heap[1]].mg);
+    //heap_down(1);
+    
+    printf("Node %u has max. marginal gain %u\n", g.heap[1], n[g.heap[1]].mg);
+    printf("Node %u has max. marginal gain %u\n", g.heap[2], n[g.heap[2]].mg);
+    printf("Node %u has max. marginal gain %u\n", g.heap[3], n[g.heap[3]].mg);
+    printf("Node %u has max. marginal gain %u\n", g.heap[4], n[g.heap[4]].mg);
+    printf("Node %u has max. marginal gain %u\n", g.heap[5], n[g.heap[5]].mg);
+    printf("Node %u has max. marginal gain %u\n", g.heap[6], n[g.heap[6]].mg);
+    printf("Node %u has max. marginal gain %u\n", g.heap[7], n[g.heap[7]].mg);
+    
+    printf("Max of heap is %u\n", g.nheap);
+    
+    /*
     while (last >= 0) {
         
         // special procedure for first node
@@ -182,11 +354,7 @@ void greedy_max () {
     
     }
     
-    
-    
-    
-    // deallocate memory
-    free(mg);
+    */
     
 }
 

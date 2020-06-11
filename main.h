@@ -13,7 +13,7 @@
 #include <string.h>
 
 // number of simulation runs
-#define NSIM 50000
+#define NSIM 100000
 
 // NONE and END are used in various ways, the only purpose of NONE < END is for the S(x) macro
 // UINT_MAX is the maximum value for an object of type unsigned int.
@@ -53,7 +53,7 @@ typedef struct NODE {
 	unsigned int deg, *nb; // degree, neighbors
 	unsigned int *nc, **t; // ordered number of / list of contact times for bisection search
 	unsigned int heap, time; // time is 1st the time of infection (for sorting the heap), then the time of recovery (to check if the node is I or R)
-    unsigned int ni, *inf; // ni corresponds to total number of simulations that infect node, inf is an array that contains the indices of simulations that infect node
+    unsigned int ni, mg, *inf; // ni corresponds to total number of simulations that infect node, mg is the current marginal gain, inf is an array that contains the indices of simulations that infect node
 } NODE;
 
 // struct to define node-marginal-gain pairs
