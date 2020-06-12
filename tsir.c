@@ -148,7 +148,7 @@ void sir () {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// funs the full simulation procedure
+// runs the full simulation procedure
 
 void simulate () {
     
@@ -211,5 +211,68 @@ void simulate () {
 	free(g.s); free(alloc);
 
 }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// create evaluation set of scenarios
+
+void simulate_eval (unsigned int neval) {
+    
+    // declare integers i
+	unsigned int i, j;
+    
+    // allocate memory to g.s (array containing the nodes that are infected/recovered
+    g.s = calloc(g.n, sizeof(unsigned int));
+    
+    // allocate memory to alloc
+    alloc = calloc(g.n, sizeof(unsigned int));
+
+	// initialize different things
+	for (i = 0; i < g.n; i++) {
+        // initialize all ni to 0
+        n[i].ni = 0;
+        // initialize alloc to 1000 for all nodes
+        alloc[i] = 1000;
+        // allocate memory for arrays that store simulation runs that infect node i
+        n[i].inf = calloc(1000, sizeof(unsigned int));
+        // set heap and time for every node to NONE
+        n[i].heap = n[i].time = NONE;
+    }
+	
+	// run the simulations
+	for (i = 0; i < neval; i++) {
+        
+        // run sir() neval times
+		sir();
+        
+        // set time of infected and recovered nodes back to NONE
+        for (j = 0; j < g.ns; j++) {
+            
+            // check if we need to allocate more memory to 'inf'
+            if (alloc[g.s[j]] <= n[g.s[j]].ni) {
+                // add 1000 to alloc
+                alloc[g.s[j]] += 1000;
+                // reallocate memory of 'inf'
+                n[g.s[j]].inf = realloc(n[g.s[j]].inf, alloc[g.s[j]] * sizeof(unsigned int));
+            }
+        
+            // increase ni for all nodes in g.s and add i to inf
+            n[g.s[j]].inf[n[g.s[j]].ni++] = i;
+            
+            // set heap and time back to NONE
+            n[g.s[j]].heap = n[g.s[j]].time = NONE;
+        
+        }
+	
+    }
+    
+    // since not all simulation runs infect every node,
+    // we reallocate memory correctly
+    for (i = 0; i < g.n; i++) n[i].inf = realloc(n[i].inf, n[i].ni * sizeof(unsigned int));
+    
+    // free memory allocated to g.s and alloc
+	free(g.s); free(alloc);
+
+}
+
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

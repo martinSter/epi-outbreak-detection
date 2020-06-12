@@ -186,6 +186,7 @@ void remove_root () {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // utility functions
 
+// store the detected scenarios in g.detected
 void store_detected (unsigned int v) {
     
     // declare unsigned int i
@@ -196,6 +197,7 @@ void store_detected (unsigned int v) {
     
 }
 
+// recompute the marginal gain of node v
 void recompute_mg (unsigned int v) {
     
     // declare unsigned int i
@@ -208,7 +210,6 @@ void recompute_mg (unsigned int v) {
     for (i = 0; i < n[v].ni; i++) if (g.detected[n[v].inf[i]] == 0) n[v].mg++;
     
 }
-
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // greedy max. (main function)
@@ -259,6 +260,7 @@ void greedy_max () {
     // remove root from heap
     remove_root();
     
+    // loop as long as heap contains nodes
     while (g.nheap > 0) {
         
         // store the current root node
@@ -277,7 +279,7 @@ void greedy_max () {
             g.on[idx++] = g.heap[1];
             
             // print marginal gain of node added to g.on
-            //printf("Node %u has been added with marginal gain = %u\n", g.heap[1], n[g.heap[1]].mg);
+            // printf("Node %u has been added with marginal gain = %u\n", g.heap[1], n[g.heap[1]].mg);
             
             // store scenarios detected by root
             store_detected(g.heap[1]);
@@ -292,78 +294,14 @@ void greedy_max () {
     for (i = 0; i < NSIM; i++) sum += g.detected[i];
     printf("Number of detected scenarios is %u\n", sum);
     
-    
-    
-    //printf("Node %u has max. marginal gain %u\n", g.heap[1], n[g.heap[1]].mg);
-    //recompute_mg(g.heap[1]);
-    //printf("Node %u has max. marginal gain %u\n", g.heap[1], n[g.heap[1]].mg);
-    //heap_down(1);
-    
-    printf("Node %u has max. marginal gain %u\n", g.heap[1], n[g.heap[1]].mg);
-    printf("Node %u has max. marginal gain %u\n", g.heap[2], n[g.heap[2]].mg);
-    printf("Node %u has max. marginal gain %u\n", g.heap[3], n[g.heap[3]].mg);
-    printf("Node %u has max. marginal gain %u\n", g.heap[4], n[g.heap[4]].mg);
-    printf("Node %u has max. marginal gain %u\n", g.heap[5], n[g.heap[5]].mg);
-    printf("Node %u has max. marginal gain %u\n", g.heap[6], n[g.heap[6]].mg);
-    printf("Node %u has max. marginal gain %u\n", g.heap[7], n[g.heap[7]].mg);
-    
     printf("Max of heap is %u\n", g.nheap);
     
-    /*
-    while (last >= 0) {
-        
-        // special procedure for first node
-        if (idx == 0) {
-            // add node with largest marginal gain to g.on
-            g.on[idx++] = mg[last].node;
-            // save scenarios detected by this node
-            // ...
-            // decrease last by 1
-            last--;
-        }
-        
-        break;
-        
-        // get largest node
-        
-        // recompute its marginal gain
-        
-        
-        // resort mg
-        
-        // if node remains at the top of array
-        
-            // add it to g.on
-            
-            // decrease last by 1
-            
-            // save scenarios detected by this node
-            
-            // empty active
-        
-        // else
-            
-            // if node is not in active, add it
-            
-            // else, randomly sample node from all active nodes
-            
-            // etc.
+    // free memory allocated to inf
+    for (i = 0; i < g.n; i++) free(n[i].inf);
     
-    
-    
-    
-    }
-    
-    */
+    // free memory allocated to g.detected
+    free(g.detected);
     
 }
-
-
-
-
-
-
-
-
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

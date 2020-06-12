@@ -46,6 +46,8 @@ typedef struct GLOBALS {
     unsigned int *on;
     // store number of detected scenarios and scenario IDs
     unsigned int nd, *detected;
+    // store results
+    unsigned int *res;
 } GLOBALS;
 
 // struct to define nodes
@@ -67,6 +69,7 @@ typedef struct MARGINALGAIN {
 
 // tsir.c
 extern void simulate ();
+extern void simulate_eval (unsigned int neval);
 
 // greedy.c
 extern void greedy_max ();

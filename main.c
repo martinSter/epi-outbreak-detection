@@ -16,7 +16,7 @@ NODE *n;
 int main (int argc, char *argv[]) {
     
     // declare integers i and j
-	unsigned int i, j;
+	unsigned int i, j, k;
     
     // declare d, initialize s1 and s2 (for averages)
 	double d;
@@ -85,13 +85,58 @@ int main (int argc, char *argv[]) {
     
     printf("\nNode %u discovers the max. number of scenarios (%u)\n", max_node, max_val);
     
-    for (i = 1; i < 10; i++) printf("Sim. ID: %d\n", n[11134].inf[i]);
+    // for (i = 1; i < 10; i++) printf("Sim. ID: %d\n", n[11134].inf[i]);
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // GREEDY MAXIMIZATION
     
     greedy_max();
     
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // EVALUATION
+    
+    // size of evaluation set
+    unsigned int neval = 10000;
+    
+    // allocate memory to g.res
+    g.res = calloc(g.n, sizeof(unsigned int));
+    
+    // create evaluation set of outbreak scenarios
+    simulate_eval(neval);
+    
+    // allocate memory to g.detected
+    g.detected = calloc(neval, sizeof(unsigned int));
+    
+    // loop over g.on and find marginal improvements
+    for (i = 0; i < g.n; i++) {
+        
+        // set all scenarios that node v detects to 1
+        for (j = 0; j < n[g.on[i]].ni; j++) g.detected[n[g.on[i]].inf[j]] = 1;
+        
+        // sum number of detected cases
+        for (k = 0; k < neval; k++) g.res[i] += g.detected[k]; 
+        
+    }
+    
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // EXPORT RESULTS
+    
+    // open network data file
+	fp = fopen("outfile.txt", "w");
+	if (!fp) {
+        // print error if we cannot open file
+		fprintf(stderr, "can't open file\n");
+		return 1;
+	}
+    
+    // print a table header
+    // fprintf(fp, "%10s %10s\n", "Celsius", "Fahrenheit");
+    
+    // print data
+    for (i = 0; i < g.n; i++) fprintf(fp, "%u;%u\n", g.on[i], g.res[i]);
+    
+    // close file
+	fclose(fp);
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // CLEANING UP
@@ -107,7 +152,7 @@ int main (int argc, char *argv[]) {
 	}
     
     // free array n of NODE structs and heap and s (only heap and s are defined as pointers in GLOBALS)
-	free(n); free(g.heap); free(g.on); free(g.detected);
+	free(n); free(g.heap); free(g.on); free(g.detected); free(g.res);
 	 
 	return 0;
 }
