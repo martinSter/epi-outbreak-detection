@@ -93,19 +93,44 @@ int main (int argc, char *argv[]) {
     greedy_max();
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // SORT NODES BY DEGREE
+    
+    sort_by_degree();
+    
+    printf("Node %u has degree %u\n", g.deg[0], n[g.deg[0]].deg);
+    printf("Node %u has degree %u\n", g.deg[1], n[g.deg[1]].deg);
+    printf("Node %u has degree %u\n", g.deg[2], n[g.deg[2]].deg);
+    
+    printf("Node %u has degree %u\n", 11134, n[11134].deg);
+    
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // RANDOMLY SHUFFLE NODES
+    
+    shuffle_nodes();
+    
+    printf("Random node %u\n", g.ran[0]);
+    printf("Random node %u\n", g.ran[1]);
+    printf("Random node %u\n", g.ran[2]);
+    
+    
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // EVALUATION
     
     // size of evaluation set
     unsigned int neval = 10000;
     
-    // allocate memory to g.res
-    g.res = calloc(g.n, sizeof(unsigned int));
+    // allocate memory to g.res_greedy
+    g.res_greedy = calloc(g.n, sizeof(unsigned int));
+    g.res_degree = calloc(g.n, sizeof(unsigned int));
+    g.res_random = calloc(g.n, sizeof(unsigned int));
     
     // create evaluation set of outbreak scenarios
     simulate_eval(neval);
     
     // allocate memory to g.detected
     g.detected = calloc(neval, sizeof(unsigned int));
+    
+    // RESULTS GREEDY
     
     // loop over g.on and find marginal improvements
     for (i = 0; i < g.n; i++) {
@@ -114,9 +139,42 @@ int main (int argc, char *argv[]) {
         for (j = 0; j < n[g.on[i]].ni; j++) g.detected[n[g.on[i]].inf[j]] = 1;
         
         // sum number of detected cases
-        for (k = 0; k < neval; k++) g.res[i] += g.detected[k]; 
+        for (k = 0; k < neval; k++) g.res_greedy[i] += g.detected[k]; 
         
     }
+    
+    // RESULTS DEGREE
+    
+    // set all elements in g.detected back to 0
+    memset(g.detected, 0, neval*sizeof(unsigned int));
+    
+    // loop over g.on and find marginal improvements
+    for (i = 0; i < g.n; i++) {
+        
+        // set all scenarios that node v detects to 1
+        for (j = 0; j < n[g.deg[i]].ni; j++) g.detected[n[g.deg[i]].inf[j]] = 1;
+        
+        // sum number of detected cases
+        for (k = 0; k < neval; k++) g.res_degree[i] += g.detected[k]; 
+        
+    }
+    
+    // RESULTS RANDOM
+    
+    // set all elements in g.detected back to 0
+    memset(g.detected, 0, neval*sizeof(unsigned int));
+    
+    // loop over g.on and find marginal improvements
+    for (i = 0; i < g.n; i++) {
+        
+        // set all scenarios that node v detects to 1
+        for (j = 0; j < n[g.ran[i]].ni; j++) g.detected[n[g.ran[i]].inf[j]] = 1;
+        
+        // sum number of detected cases
+        for (k = 0; k < neval; k++) g.res_random[i] += g.detected[k]; 
+        
+    }
+    
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // EXPORT RESULTS
@@ -133,7 +191,7 @@ int main (int argc, char *argv[]) {
     // fprintf(fp, "%10s %10s\n", "Celsius", "Fahrenheit");
     
     // print data
-    for (i = 0; i < g.n; i++) fprintf(fp, "%u;%u\n", g.on[i], g.res[i]);
+    for (i = 0; i < g.n; i++) fprintf(fp, "%u;%u;%u;%u;%u;%u\n", g.on[i], g.res_greedy[i], g.deg[i], g.res_degree[i], g.ran[i], g.res_random[i]);
     
     // close file
 	fclose(fp);
@@ -152,7 +210,7 @@ int main (int argc, char *argv[]) {
 	}
     
     // free array n of NODE structs and heap and s (only heap and s are defined as pointers in GLOBALS)
-	free(n); free(g.heap); free(g.on); free(g.detected); free(g.res);
+	free(n); free(g.heap); free(g.on); free(g.deg); free(g.ran); free(g.detected); free(g.res_greedy); free(g.res_degree); free(g.res_random);
 	 
 	return 0;
 }

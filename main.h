@@ -13,7 +13,7 @@
 #include <string.h>
 
 // number of simulation runs
-#define NSIM 100000
+#define NSIM 1000000
 
 // NONE and END are used in various ways, the only purpose of NONE < END is for the S(x) macro
 // UINT_MAX is the maximum value for an object of type unsigned int.
@@ -43,11 +43,11 @@ typedef struct GLOBALS {
 	// OUTBREAK STATS
 	unsigned int ns, *s;
     // array to store optimal node order
-    unsigned int *on;
+    unsigned int *on, *deg, *ran;
     // store number of detected scenarios and scenario IDs
     unsigned int nd, *detected;
     // store results
-    unsigned int *res;
+    unsigned int *res_greedy, *res_degree, *res_random;
 } GLOBALS;
 
 // struct to define nodes
@@ -83,6 +83,8 @@ extern void init_rng ();
 extern void read_data (FILE *);
 extern unsigned int exptime ();
 extern void progress_bar (char label[], int step, int total);
+extern void sort_by_degree ();
+extern void shuffle_nodes ();
 
 // quick.c
 extern void quick (unsigned int);

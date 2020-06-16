@@ -204,3 +204,76 @@ void progress_bar (char label[], int step, int total) {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// sort nodes by degree
+
+void sort_by_degree () {
+    
+    // declare integers
+    unsigned int i, j, temp1, temp2;
+    
+    // initialize array on the stack that holds degrees of nodes
+    unsigned int degrees[g.n];
+    
+    // allocate memory to g.deg
+    g.deg = malloc(g.n * sizeof(unsigned int));
+    
+    // loop over all nodes and fill arrays
+    for (i = 0; i < g.n; i++) {
+        g.deg[i] = i;
+        degrees[i] = n[i].deg;
+    }
+ 
+    // loop over array elements
+    for (i = 0; i < g.n; i++) {
+        
+        // loop over all array elements after i-th element
+        for (j = i + 1; j < g.n; j++) {
+            
+            // swap elements if i-th element is smaller than j-th element
+            if (degrees[i] < degrees[j]) {
+                
+                // store node and degree at i in temp
+                temp1 = g.deg[i];
+                temp2 = degrees[i];
+                
+                // set i to j
+                g.deg[i] = g.deg[j];
+                degrees[i] = degrees[j];
+                
+                // set j from temp
+                g.deg[j] = temp1;
+                degrees[j] = temp2;
+            }
+        }
+    }
+    
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// randomize node order
+
+void shuffle_nodes () {
+    
+    // declare integers
+    unsigned int i;
+    
+    // allocate memory to g.ran
+    g.ran = malloc(g.n * sizeof(unsigned int));
+    
+    // initialize g.ran
+    for (i = 0; i < g.n; i++) g.ran[i] = i;
+    
+    // 
+    for (i = 0; i < g.n - 1; i++) {
+        
+        size_t j = i + rand() / (RAND_MAX / (g.n - i) + 1);
+        int t = g.ran[j];
+        g.ran[j] = g.ran[i];
+        g.ran[i] = t;
+        
+    }
+   
+}
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
