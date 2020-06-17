@@ -85,6 +85,9 @@ int main (int argc, char *argv[]) {
     
     printf("\nNode %u discovers the max. number of scenarios (%u)\n", max_node, max_val);
     
+    for (i = 0; i < n[15].ni; i++) printf("Simulation run: %u, time penalty reduction: %u, size penalty reduction: %u\n", n[15].inf[i], n[15].dtime[i], n[15].dsize[i]);
+    
+    
     // for (i = 1; i < 10; i++) printf("Sim. ID: %d\n", n[11134].inf[i]);
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -207,6 +210,8 @@ int main (int argc, char *argv[]) {
 		free(n[i].nc);
 		free(n[i].t);
         free(n[i].inf);
+        free(n[i].dtime);
+        free(n[i].dsize);
 	}
     
     // free array n of NODE structs and heap and s (only heap and s are defined as pointers in GLOBALS)

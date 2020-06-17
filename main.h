@@ -41,7 +41,7 @@ typedef struct GLOBALS {
 	uint32_t rmem;
 	unsigned int cutoff_source, cutoff_dur; // to get the probabilities right . .
 	// OUTBREAK STATS
-	unsigned int ns, *s;
+	unsigned int ns, sim_id, *s;
     // array to store optimal node order
     unsigned int *on, *deg, *ran;
     // store number of detected scenarios and scenario IDs
@@ -56,6 +56,7 @@ typedef struct NODE {
 	unsigned int *nc, **t; // ordered number of / list of contact times for bisection search
 	unsigned int heap, time; // time is 1st the time of infection (for sorting the heap), then the time of recovery (to check if the node is I or R)
     unsigned int ni, mg, *inf; // ni corresponds to total number of simulations that infect node, mg is the current marginal gain, inf is an array that contains the indices of simulations that infect node
+    unsigned int *dtime, *dsize; // arrays to store the detection time and the size of the outbreak at detection time
 } NODE;
 
 // struct to define node-marginal-gain pairs

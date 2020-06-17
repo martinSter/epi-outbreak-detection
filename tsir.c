@@ -65,6 +65,14 @@ void infect () {
     
     // declare integers, now is the infection time of me, duration is recovery time of me
 	unsigned int now = n[me].time, duration = exptime();
+    
+    // store infection run, diff. between infection time and outbreak start time, and current size of outbreak for node me
+    n[me].inf[n[me].ni] = g.sim_id;
+    n[me].dtime[n[me].ni] = g.dur - now;
+    n[me].dsize[n[me].ni] = g.ns + 1;
+    
+    // increment ni by 1
+    n[me].ni++;
 
     // take the newly infected off the heap
 	del_root();
@@ -169,6 +177,8 @@ void simulate () {
         alloc[i] = 1000;
         // allocate memory for arrays that store simulation runs that infect node i
         n[i].inf = calloc(1000, sizeof(unsigned int));
+        n[i].dtime = calloc(1000, sizeof(unsigned int));
+        n[i].dsize = calloc(1000, sizeof(unsigned int));
         // set heap and time for every node to NONE
         n[i].heap = n[i].time = NONE;
     }
@@ -176,22 +186,27 @@ void simulate () {
 	// run the simulations
 	for (i = 0; i < NSIM; i++) {
         
+        // store current simulation id in globals
+        g.sim_id = i;
+        
         // run sir() NSIM times
 		sir();
         
         // set time of infected and recovered nodes back to NONE
         for (j = 0; j < g.ns; j++) {
             
-            // check if we need to allocate more memory to 'inf'
-            if (alloc[g.s[j]] <= n[g.s[j]].ni) {
+            // check if we need to allocate more memory to 'inf', 'dtime', and 'dsize'
+            if (alloc[g.s[j]] == n[g.s[j]].ni) {
                 // add 1000 to alloc
                 alloc[g.s[j]] += 1000;
-                // reallocate memory of 'inf'
+                // reallocate memory of 'inf', 'dtime', and 'dsize'
                 n[g.s[j]].inf = realloc(n[g.s[j]].inf, alloc[g.s[j]] * sizeof(unsigned int));
+                n[g.s[j]].dtime = realloc(n[g.s[j]].dtime, alloc[g.s[j]] * sizeof(unsigned int));
+                n[g.s[j]].dsize = realloc(n[g.s[j]].dsize, alloc[g.s[j]] * sizeof(unsigned int));
             }
-        
-            // increase ni for all nodes in g.s and add i to inf
-            n[g.s[j]].inf[n[g.s[j]].ni++] = i;
+            
+            // compute penalty reduction for size of outbreak
+            n[g.s[j]].dsize[n[g.s[j]].ni - 1] = g.ns - n[g.s[j]].dsize[n[g.s[j]].ni - 1];
             
             // set heap and time back to NONE
             n[g.s[j]].heap = n[g.s[j]].time = NONE;
@@ -205,7 +220,11 @@ void simulate () {
     
     // since not all simulation runs infect every node,
     // we reallocate memory correctly
-    for (i = 0; i < g.n; i++) n[i].inf = realloc(n[i].inf, n[i].ni * sizeof(unsigned int));
+    for (i = 0; i < g.n; i++) {
+        n[i].inf = realloc(n[i].inf, n[i].ni * sizeof(unsigned int));
+        n[i].dtime = realloc(n[i].dtime, n[i].ni * sizeof(unsigned int));
+        n[i].dsize = realloc(n[i].dsize, n[i].ni * sizeof(unsigned int));
+    }
     
     // free memory allocated to g.s and alloc
 	free(g.s); free(alloc);
@@ -234,6 +253,8 @@ void simulate_eval (unsigned int neval) {
         alloc[i] = 1000;
         // allocate memory for arrays that store simulation runs that infect node i
         n[i].inf = calloc(1000, sizeof(unsigned int));
+        n[i].dtime = calloc(1000, sizeof(unsigned int));
+        n[i].dsize = calloc(1000, sizeof(unsigned int));
         // set heap and time for every node to NONE
         n[i].heap = n[i].time = NONE;
     }
@@ -241,22 +262,24 @@ void simulate_eval (unsigned int neval) {
 	// run the simulations
 	for (i = 0; i < neval; i++) {
         
+        // store current simulation id in globals
+        g.sim_id = i;
+        
         // run sir() neval times
 		sir();
         
         // set time of infected and recovered nodes back to NONE
         for (j = 0; j < g.ns; j++) {
             
-            // check if we need to allocate more memory to 'inf'
-            if (alloc[g.s[j]] <= n[g.s[j]].ni) {
+            // check if we need to allocate more memory to 'inf', 'dtime', and 'dsize'
+            if (alloc[g.s[j]] == n[g.s[j]].ni) {
                 // add 1000 to alloc
                 alloc[g.s[j]] += 1000;
-                // reallocate memory of 'inf'
+                // reallocate memory of 'inf', 'dtime', and 'dsize'
                 n[g.s[j]].inf = realloc(n[g.s[j]].inf, alloc[g.s[j]] * sizeof(unsigned int));
+                n[g.s[j]].dtime = realloc(n[g.s[j]].dtime, alloc[g.s[j]] * sizeof(unsigned int));
+                n[g.s[j]].dsize = realloc(n[g.s[j]].dsize, alloc[g.s[j]] * sizeof(unsigned int));
             }
-        
-            // increase ni for all nodes in g.s and add i to inf
-            n[g.s[j]].inf[n[g.s[j]].ni++] = i;
             
             // set heap and time back to NONE
             n[g.s[j]].heap = n[g.s[j]].time = NONE;
@@ -267,7 +290,11 @@ void simulate_eval (unsigned int neval) {
     
     // since not all simulation runs infect every node,
     // we reallocate memory correctly
-    for (i = 0; i < g.n; i++) n[i].inf = realloc(n[i].inf, n[i].ni * sizeof(unsigned int));
+    for (i = 0; i < g.n; i++) {
+        n[i].inf = realloc(n[i].inf, n[i].ni * sizeof(unsigned int));
+        n[i].dtime = realloc(n[i].dtime, n[i].ni * sizeof(unsigned int));
+        n[i].dsize = realloc(n[i].dsize, n[i].ni * sizeof(unsigned int));
+    }
     
     // free memory allocated to g.s and alloc
 	free(g.s); free(alloc);

@@ -217,7 +217,7 @@ void recompute_mg (unsigned int v) {
 void greedy_max () {
     
     // declare unsigned int i
-    unsigned int i, idx = 0, cn, sum=0;
+    unsigned int i, idx = 0, cn, sum = 0;
     
     // allocate memory to g.on (array storing the optimal node order)
     g.on = malloc(g.n * sizeof(unsigned int));
@@ -297,7 +297,11 @@ void greedy_max () {
     printf("Max of heap is %u\n", g.nheap);
     
     // free memory allocated to inf
-    for (i = 0; i < g.n; i++) free(n[i].inf);
+    for (i = 0; i < g.n; i++) {
+        free(n[i].inf);
+        free(n[i].dtime);
+        free(n[i].dsize);
+    }
     
     // free memory allocated to g.detected
     free(g.detected);
