@@ -25,8 +25,8 @@ int main (int argc, char *argv[]) {
 	FILE *fp;
 	
 	// just a help message
-	if ((argc < 4) || (argc > 4)) {
-		fprintf(stderr, "usage: ./main [data file] [beta] [nu (units of the duration of the data)]\n");
+	if ((argc < 5) || (argc > 5)) {
+		fprintf(stderr, "usage: ./main [data file] [beta] [nu (units of the duration of the data)] [seed]\n");
 		return 1;
 	}
     
@@ -48,9 +48,6 @@ int main (int argc, char *argv[]) {
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    // initialize random number generator
-	pcg_init();
-
 	// compute 1/log(1-beta) --> inverse probability transform
 	d = 1.0 / log(1.0 - atof(argv[2]));
 	
@@ -60,6 +57,9 @@ int main (int argc, char *argv[]) {
 	
     // compute recovery parameter
     g.recovery_scale = g.dur / atof(argv[3]);
+    
+    // initialize random number generator
+    g.state = (uint64_t) strtoull(argv[4], NULL, 10);
 
 	// allocating the heap (N + 1) because its indices are 1,...,N
     // g.heap is a pointer, so here we assign it the address where it will point to

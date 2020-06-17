@@ -79,7 +79,6 @@ extern void up_heap (unsigned int);
 extern void del_root ();
 
 // misc.c
-extern void init_rng ();
 extern void read_data (FILE *);
 extern unsigned int exptime ();
 extern void progress_bar (char label[], int step, int total);
@@ -93,6 +92,5 @@ extern void quick (unsigned int);
 extern uint16_t pcg_16 ();
 extern uint32_t pcg_32 ();
 extern uint32_t pcg_32_bounded ();
-extern void pcg_init ();
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
