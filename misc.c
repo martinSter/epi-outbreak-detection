@@ -255,7 +255,7 @@ void sort_by_degree () {
 void shuffle_nodes () {
     
     // declare integers
-    unsigned int i;
+    unsigned int i, j, t;
     
     // allocate memory to g.ran
     g.ran = malloc(g.n * sizeof(unsigned int));
@@ -263,12 +263,19 @@ void shuffle_nodes () {
     // initialize g.ran
     for (i = 0; i < g.n; i++) g.ran[i] = i;
     
-    // 
+    // shuffle
     for (i = 0; i < g.n - 1; i++) {
         
-        size_t j = i + rand() / (RAND_MAX / (g.n - i) + 1);
-        int t = g.ran[j];
+        // get random index after i
+        j = i + pcg_32_bounded(g.n - i);
+        
+        // store node at j in t
+        t = g.ran[j];
+        
+        // set node at j to node at i
         g.ran[j] = g.ran[i];
+        
+        // set node at i to node previously at j
         g.ran[i] = t;
         
     }
