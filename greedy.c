@@ -252,7 +252,7 @@ void greedy_max () {
     g.on[idx++] = g.heap[1];
     
     // print marginal gain of node added to g.on
-    printf("Node %u has been added with marginal gain = %u\n", g.heap[1], n[g.heap[1]].mg);
+    printf("Node %u has been added with marginal gain = %lu\n", g.heap[1], n[g.heap[1]].mg);
     
     // store scenarios detected by root
     store_detected(g.heap[1]);
@@ -296,12 +296,147 @@ void greedy_max () {
     
     printf("Max of heap is %u\n", g.nheap);
     
-    // free memory allocated to inf
-    for (i = 0; i < g.n; i++) {
-        free(n[i].inf);
-        free(n[i].dtime);
-        free(n[i].dsize);
+    // free memory allocated to g.detected
+    free(g.detected);
+    
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+// store the detected scenarios in g.detected
+void store_detected_dt (unsigned int v) {
+    
+    // declare unsigned int i
+    unsigned int i;
+    
+    // set all scenarios that node v detects to 1
+    for (i = 0; i < n[v].ni; i++) {
+        
+        // if penalty reduction (pr) of v is larger than current pr, then replace it
+        if (n[v].dtime[i] > g.detected[n[v].inf[i]]) g.detected[n[v].inf[i]] = n[v].dtime[i];        
+        
     }
+    
+}
+
+// recompute the marginal gain of node v
+void recompute_mg_dt (unsigned int v) {
+    
+    // declare unsigned int i
+    unsigned int i;
+    
+    // set current marginal gain of node v to 0
+    n[v].mg = 0;
+    
+    // recompute marginal gain of node v
+    for (i = 0; i < n[v].ni; i++) {
+        
+        int temp = n[v].dtime[i] - g.detected[n[v].inf[i]];
+        
+        // check if penalty reduction of node v is larger than current penalty reduction (for some scenario)
+        if (temp > 0) {
+            
+            // increment marginal gain of node v by difference
+            n[v].mg += temp;
+            
+        }
+        
+    }
+    
+    // divide by NSIM
+    // n[v].mg /= (double) NSIM;
+        
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// greedy max. (main function)
+
+void greedy_max_dt () {
+    
+    // declare unsigned int i
+    unsigned int i, j, idx = 0, cn;
+    
+    // allocate memory to g.on (array storing the optimal node order)
+    g.dt = malloc(g.n * sizeof(unsigned int));
+    
+    // initialize number of detected scenarios to 0
+    g.nd = 0;
+    
+    // allocate memory to g.detected
+    g.detected = calloc(NSIM, sizeof(unsigned int));
+    
+    // initialize marginal gains of nodes
+    for (i = 0; i < g.n; i++) {
+        
+        n[i].mg = 0;
+        
+        for (j = 0; j < n[i].ni; j++) n[i].mg += n[i].dtime[j];
+        
+        // n[i].mg /= (double) NSIM;
+        
+    }
+    
+    // set nheap to 0
+    g.nheap = 0;
+    
+    // initialize max-heap
+    for (i = 0; i < g.n; i++) {
+        
+        // add node i to heap
+        g.heap[++g.nheap] = i;
+        
+        // modify heap position of node i
+        n[i].heap = g.nheap;
+        
+        // up-heap node i
+        heap_up(n[i].heap);
+        
+    }
+    
+    // add first node in heap to g.dt
+    g.dt[idx++] = g.heap[1];
+    
+    // print marginal gain of node added to g.on
+    printf("Node %u has been added with marginal gain = %lu\n", g.heap[1], n[g.heap[1]].mg);
+    
+    // store scenarios detected by root
+    store_detected_dt(g.heap[1]);
+    
+    // remove root from heap
+    remove_root();
+    
+    // loop as long as heap contains nodes
+    while (g.nheap > 0) {
+        
+        // store the current root node
+        cn = g.heap[1];
+        
+        // recompute marginal gain of root node
+        recompute_mg_dt(g.heap[1]);
+        
+        // down-heap root if necessary
+        heap_down(1);
+        
+        // if former root is still on top of heap, we add it to g.on
+        if (g.heap[1] == cn) {
+            
+            // add root to g.on
+            g.dt[idx++] = g.heap[1];
+            
+            // print marginal gain of node added to g.on
+            // printf("Node %u has been added with marginal gain = %u\n", g.heap[1], n[g.heap[1]].mg);
+            
+            // store scenarios detected by root
+            store_detected_dt(g.heap[1]);
+            
+            // remove root from heap
+            remove_root();
+            
+        }
+        
+    }
+    
+    printf("Max of heap is %u\n", g.nheap);
     
     // free memory allocated to g.detected
     free(g.detected);

@@ -94,6 +94,14 @@ int main (int argc, char *argv[]) {
     // GREEDY MAXIMIZATION
     
     greedy_max();
+    greedy_max_dt();
+    
+    // free memory allocated to inf, dtime, and dsize
+    for (i = 0; i < g.n; i++) {
+        free(n[i].inf);
+        free(n[i].dtime);
+        free(n[i].dsize);
+    }
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // SORT NODES BY DEGREE
@@ -215,7 +223,7 @@ int main (int argc, char *argv[]) {
 	}
     
     // free array n of NODE structs and heap and s (only heap and s are defined as pointers in GLOBALS)
-	free(n); free(g.heap); free(g.on); free(g.deg); free(g.ran); free(g.detected); free(g.res_greedy); free(g.res_degree); free(g.res_random);
+	free(n); free(g.heap); free(g.on); free(g.dt); free(g.pa); free(g.deg); free(g.ran); free(g.detected); free(g.res_greedy); free(g.res_degree); free(g.res_random);
 	 
 	return 0;
 }
