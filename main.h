@@ -74,8 +74,9 @@ extern void simulate ();
 extern void simulate_eval (unsigned int neval);
 
 // greedy.c
-extern void greedy_max ();
+extern void greedy_max_dl ();
 extern void greedy_max_dt ();
+extern void greedy_max_pa ();
 
 // heap.c
 extern void up_heap (unsigned int);

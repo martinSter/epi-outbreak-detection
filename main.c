@@ -93,8 +93,9 @@ int main (int argc, char *argv[]) {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // GREEDY MAXIMIZATION
     
-    greedy_max();
+    greedy_max_dl();
     greedy_max_dt();
+    greedy_max_pa();
     
     // free memory allocated to inf, dtime, and dsize
     for (i = 0; i < g.n; i++) {
@@ -126,7 +127,7 @@ int main (int argc, char *argv[]) {
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // EVALUATION
-    
+        
     // size of evaluation set
     unsigned int neval = 10000;
     
@@ -191,18 +192,18 @@ int main (int argc, char *argv[]) {
     // EXPORT RESULTS
     
     // open network data file
-	fp = fopen("outfile.txt", "w");
+	fp = fopen("nodes.txt", "w");
 	if (!fp) {
         // print error if we cannot open file
 		fprintf(stderr, "can't open file\n");
 		return 1;
 	}
     
-    // print a table header
-    // fprintf(fp, "%10s %10s\n", "Celsius", "Fahrenheit");
+    // print optimal nodes to file
+    for (i = 0; i < g.n; i++) fprintf(fp, "%u;%u;%u;%u;%u\n", g.on[i], g.dt[i], g.pa[i], g.deg[i], g.ran[i]);
     
     // print data
-    for (i = 0; i < g.n; i++) fprintf(fp, "%u;%u;%u;%u;%u;%u\n", g.on[i], g.res_greedy[i], g.deg[i], g.res_degree[i], g.ran[i], g.res_random[i]);
+    // for (i = 0; i < g.n; i++) fprintf(fp, "%u;%u;%u;%u;%u;%u\n", g.on[i], g.res_greedy[i], g.deg[i], g.res_degree[i], g.ran[i], g.res_random[i]);
     
     // close file
 	fclose(fp);
@@ -223,7 +224,9 @@ int main (int argc, char *argv[]) {
 	}
     
     // free array n of NODE structs and heap and s (only heap and s are defined as pointers in GLOBALS)
-	free(n); free(g.heap); free(g.on); free(g.dt); free(g.pa); free(g.deg); free(g.ran); free(g.detected); free(g.res_greedy); free(g.res_degree); free(g.res_random);
+	free(n); free(g.heap); free(g.detected);
+    free(g.on); free(g.dt); free(g.pa); free(g.deg); free(g.ran);
+    free(g.res_greedy); free(g.res_degree); free(g.res_random);
 	 
 	return 0;
 }
