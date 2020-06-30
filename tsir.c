@@ -68,7 +68,7 @@ void infect () {
     
     // store infection run, diff. between infection time and outbreak start time, and current size of outbreak for node me
     n[me].inf[n[me].ni] = g.sim_id;
-    n[me].dtime[n[me].ni] = g.dur - now;
+    n[me].dtime[n[me].ni] = g.t_end - now;
     n[me].dsize[n[me].ni] = g.ns + 1;
     
     // increment ni by 1
@@ -103,7 +103,7 @@ void infect () {
 				// if the infection time of you is before when me gets recovered,
 				// and (if it was already listed for infection) before the
 				// previously listed infection event, then list it
-				if ((t <= n[me].time) && (t < n[you].time)) {
+				if ((t <= n[me].time) && (t < n[you].time) && (t < g.t_end)) {
 					
                     // set you's infection time
                     n[you].time = t;
@@ -143,7 +143,8 @@ void sir () {
     // randomly select the source of the outbreak
 	source = pcg_32_bounded(g.n);
     // randomly select the time of the infection for source
-	n[source].time = pcg_32_bounded(g.dur);
+	n[source].time = pcg_32_bounded_ul(g.t_start, g.t_end);
+    //n[source].time = rnd_bounded(g.t_start, g.t_end);
     
     // set heap of source to 1
 	n[source].heap = 1;
@@ -158,10 +159,14 @@ void sir () {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // runs the full simulation procedure
 
-void simulate () {
+void simulate (unsigned int t_start, unsigned int t_end) {
     
     // declare integers i
 	unsigned int i, j;
+    
+    // set start and end time in GLOBALS
+    g.t_start = t_start;
+    g.t_end = t_end;
     
     // allocate memory to g.s (array containing the nodes that are infected/recovered
     g.s = calloc(g.n, sizeof(unsigned int));
@@ -234,10 +239,14 @@ void simulate () {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // create evaluation set of scenarios
 
-void simulate_eval (unsigned int neval) {
+void simulate_eval (unsigned int neval, unsigned int t_start, unsigned int t_end) {
     
     // declare integers i
 	unsigned int i, j;
+    
+    // set start and end time in GLOBALS
+    g.t_start = t_start;
+    g.t_end = t_end;
     
     // allocate memory to g.s (array containing the nodes that are infected/recovered
     g.s = calloc(g.n, sizeof(unsigned int));

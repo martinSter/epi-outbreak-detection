@@ -30,10 +30,23 @@ uint32_t pcg_32 () {
 uint32_t pcg_32_bounded (uint32_t bound) {
 	uint32_t threshold = -bound % bound, r;
 
-	for ( ; ; ) {
-		r = pcg_32();
-		if (r >= threshold) return r % bound;
-	}
+    do r = pcg_32();
+	while (r < threshold);
+	
+	return r % bound;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+uint32_t pcg_32_bounded_ul (uint32_t lower, uint32_t upper) {
+	
+    uint32_t bound = upper - lower + 1;
+    uint32_t threshold = -bound % bound, r;
+
+    do r = pcg_32();
+	while (r < threshold);
+	
+	return (r % bound) + lower;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

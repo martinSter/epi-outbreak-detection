@@ -13,7 +13,7 @@
 #include <string.h>
 
 // number of simulation runs
-#define NSIM 100000
+#define NSIM 1000000
 
 // NONE and END are used in various ways, the only purpose of NONE < END is for the S(x) macro
 // UINT_MAX is the maximum value for an object of type unsigned int.
@@ -40,6 +40,8 @@ typedef struct GLOBALS {
 	uint64_t state;
 	uint32_t rmem;
 	unsigned int cutoff_source, cutoff_dur; // to get the probabilities right . .
+    // START AND END TIME
+    unsigned int t_start, t_end;
 	// OUTBREAK STATS
 	unsigned int ns, sim_id, *s;
     // array to store optimal node order
@@ -70,8 +72,8 @@ typedef struct MARGINALGAIN {
 // the 'extern' statement is not absolutely necessary (the compiler implicitly assumes it for functions)
 
 // tsir.c
-extern void simulate ();
-extern void simulate_eval (unsigned int neval);
+extern void simulate (unsigned int t_start, unsigned int t_end);
+extern void simulate_eval (unsigned int neval, unsigned int t_start, unsigned int t_end);
 
 // greedy.c
 extern void greedy_max_dl ();
@@ -88,6 +90,7 @@ extern unsigned int exptime ();
 extern void progress_bar (char label[], int step, int total);
 extern void sort_by_degree ();
 extern void shuffle_nodes ();
+extern unsigned int rnd_bounded (unsigned int lower, unsigned int upper);
 
 // quick.c
 extern void quick (unsigned int);
@@ -95,6 +98,7 @@ extern void quick (unsigned int);
 // pcg_rnd.c
 extern uint16_t pcg_16 ();
 extern uint32_t pcg_32 ();
-extern uint32_t pcg_32_bounded ();
+extern uint32_t pcg_32_bounded (uint32_t bound);
+extern uint32_t pcg_32_bounded_ul (uint32_t lower, uint32_t upper);
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -46,6 +46,11 @@ int main (int argc, char *argv[]) {
     // close file
 	fclose(fp);
     
+    // print size of network and duration
+    printf("Network has size %u and duration %u\n", g.n, g.dur);
+    
+    //for (i = 0; i < 100; i++) printf("Random number = %u\n", pcg_32_bounded_ul(50, 100));
+        
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 	// compute 1/log(1-beta) --> inverse probability transform
@@ -69,7 +74,7 @@ int main (int argc, char *argv[]) {
     // SIMULATION OF OUTBREAKS
     
     // simulate NSIM times and store scenario ID's in 'n'
-    simulate();
+    simulate(500, 680);
     
     // Initialize maximum element 
     unsigned int max_val = n[0].ni, max_node = 0; 
@@ -85,9 +90,7 @@ int main (int argc, char *argv[]) {
     
     printf("\nNode %u discovers the max. number of scenarios (%u)\n", max_node, max_val);
     
-    for (i = 0; i < n[15].ni; i++) printf("Simulation run: %u, time penalty reduction: %u, size penalty reduction: %u\n", n[15].inf[i], n[15].dtime[i], n[15].dsize[i]);
-    
-    
+    // for (i = 0; i < n[15].ni; i++) printf("Simulation run: %u, time penalty reduction: %u, size penalty reduction: %u\n", n[15].inf[i], n[15].dtime[i], n[15].dsize[i]);
     // for (i = 1; i < 10; i++) printf("Sim. ID: %d\n", n[11134].inf[i]);
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -123,11 +126,10 @@ int main (int argc, char *argv[]) {
     printf("Random node %u\n", g.ran[0]);
     printf("Random node %u\n", g.ran[1]);
     printf("Random node %u\n", g.ran[2]);
-    
-    
+        
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // EVALUATION
-        
+    
     // size of evaluation set
     unsigned int neval = 10000;
     
@@ -137,7 +139,7 @@ int main (int argc, char *argv[]) {
     g.res_random = calloc(g.n, sizeof(unsigned int));
     
     // create evaluation set of outbreak scenarios
-    simulate_eval(neval);
+    simulate_eval(neval, 680, 860);
     
     // allocate memory to g.detected
     g.detected = calloc(neval, sizeof(unsigned int));
@@ -204,6 +206,20 @@ int main (int argc, char *argv[]) {
     
     // print data
     // for (i = 0; i < g.n; i++) fprintf(fp, "%u;%u;%u;%u;%u;%u\n", g.on[i], g.res_greedy[i], g.deg[i], g.res_degree[i], g.ran[i], g.res_random[i]);
+    
+    // close file
+	fclose(fp);
+    
+    // open network data file
+	fp = fopen("results.txt", "w");
+	if (!fp) {
+        // print error if we cannot open file
+		fprintf(stderr, "can't open file\n");
+		return 1;
+	}
+    
+    // print data
+    for (i = 0; i < g.n; i++) fprintf(fp, "%u;%u;%u\n", g.res_greedy[i], g.res_degree[i], g.res_random[i]);
     
     // close file
 	fclose(fp);

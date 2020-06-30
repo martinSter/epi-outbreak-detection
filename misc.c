@@ -282,5 +282,13 @@ void shuffle_nodes () {
    
 }
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// generate random numbers between lower and upper
+
+unsigned int rnd_bounded (unsigned int lower, unsigned int upper) {
+    
+    return (rand() % (upper - lower + 1)) + lower; 
+
+}
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
