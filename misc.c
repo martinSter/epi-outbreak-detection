@@ -314,3 +314,88 @@ void shuffle_nodes () {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// quicksort routines
+
+// utility function to swap two elements 
+void swap(int i, int j, unsigned int *out_sizes) {
+    
+    // declare unsigned integers
+    unsigned int temp = out_sizes[i];
+
+    // get values of j at i
+    out_sizes[i] = out_sizes[j];
+    
+    // get values of i at j
+    out_sizes[j] = temp;
+
+}
+  
+/* This function takes last element as pivot, places 
+   the pivot element at its correct position in sorted 
+    array, and places all smaller (smaller than pivot) 
+   to left of pivot and all greater elements to right 
+   of pivot */
+int partition (int low, int high, unsigned int *out_sizes) {
+    
+    // set pivot
+    unsigned int pivot = out_sizes[high];
+    
+    // index of smaller element
+    int i = (low - 1); 
+
+    // loop from low to high
+    for (int j = low; j <= high-1; j++) {
+        
+        // if current element is smaller than the pivot 
+        if (out_sizes[j] < pivot) {
+            
+            // increment index of smaller element
+            i++;
+            
+            // swap elements i and j
+            swap(i, j, out_sizes);
+            
+        }
+        
+    }
+    
+    // swap elements i+1 and high (put pivot in right position)
+    swap(i+1, high, out_sizes);
+    
+    // return partitioning index
+    return (i + 1);
+    
+} 
+  
+// main function for quickSort
+void quickSort(int low, int high, unsigned int *out_sizes) {
+    
+    // only continue if low is smaller than high
+    if (low < high) {
+        
+        // pi is partitioning index, mg[p] is now at right place
+        int pi = partition(low, high, out_sizes);
+  
+        // separately sort elements before partition and after partition 
+        quickSort(low, pi - 1, out_sizes); 
+        quickSort(pi + 1, high, out_sizes); 
+    
+    }
+    
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// median
+
+double compute_median(unsigned int *out_sizes, unsigned int size_array) {
+    
+    // quicksort the array
+    quickSort(0, size_array - 1, out_sizes); 
+  
+    // check for even case 
+    if (size_array % 2 != 0) return (double) out_sizes[size_array/2]; 
+    else return (double)(out_sizes[(size_array-1)/2] + out_sizes[size_array/2]) / 2.0;
+    
+} 
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

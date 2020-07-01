@@ -44,12 +44,14 @@ typedef struct GLOBALS {
     unsigned int t_start, t_end;
 	// OUTBREAK STATS
 	unsigned int ns, sim_id, *s;
+    // STORE ALL OUTBREAK SIZES
+    unsigned int *outbreak_sizes;
     // array to store optimal node order
     unsigned int *on, *dt, *pa, *deg, *ran;
     // store number of detected scenarios and scenario IDs
     unsigned int nd, *detected;
     // store results
-    unsigned int *res_greedy, *res_degree, *res_random;
+    unsigned int *res_greedy, *res_greedy_dt, *res_greedy_pa, *res_degree, *res_degree_dt, *res_degree_pa, *res_random, *res_random_dt, *res_random_pa;
 } GLOBALS;
 
 // struct to define nodes
@@ -90,6 +92,8 @@ extern unsigned int exptime ();
 extern void progress_bar (char label[], int step, int total);
 extern void sort_by_degree ();
 extern void shuffle_nodes ();
+extern void quickSort(int low, int high, unsigned int *out_sizes);
+extern double compute_median(unsigned int *out_sizes, unsigned int size_array);
 
 // quick.c
 extern void quick (unsigned int);

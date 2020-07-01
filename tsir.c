@@ -164,9 +164,15 @@ void simulate (unsigned int t_start, unsigned int t_end) {
     // declare integers i
 	unsigned int i, j;
     
+    // declare double for avg. outbreak size
+    double s = 0.0;
+    
     // set start and end time in GLOBALS
     g.t_start = t_start;
     g.t_end = t_end;
+    
+    // allocate memory to g.outbreak_sizes
+    g.outbreak_sizes = calloc(NSIM, sizeof(unsigned int));
     
     // allocate memory to g.s (array containing the nodes that are infected/recovered
     g.s = calloc(g.n, sizeof(unsigned int));
@@ -217,6 +223,9 @@ void simulate (unsigned int t_start, unsigned int t_end) {
             n[g.s[j]].heap = n[g.s[j]].time = NONE;
         
         }
+        
+        // store outbreak size
+        g.outbreak_sizes[i] = g.ns;
     
         // print progress bar
         progress_bar("Simulation progress: ", i, NSIM);
@@ -231,8 +240,20 @@ void simulate (unsigned int t_start, unsigned int t_end) {
         n[i].dsize = realloc(n[i].dsize, n[i].ni * sizeof(unsigned int));
     }
     
+    // sum up all outbreak sizes
+    for (i = 0; i < NSIM; i++) s += (double) g.outbreak_sizes[i];
+    
+    // print average outbreak size to command line
+    printf("\nAverage outbreak size in training phase is %f\n", s /= NSIM);
+    
+    // compute median outbreak size
+    double med = compute_median(g.outbreak_sizes, NSIM);
+    
+    // print median outbreak size to command line
+    printf("Median outbreak size is %f\n", med);
+    
     // free memory allocated to g.s and alloc
-	free(g.s); free(alloc);
+	free(g.s); free(g.outbreak_sizes); free(alloc);
 
 }
 
@@ -289,6 +310,9 @@ void simulate_eval (unsigned int neval, unsigned int t_start, unsigned int t_end
                 n[g.s[j]].dtime = realloc(n[g.s[j]].dtime, alloc[g.s[j]] * sizeof(unsigned int));
                 n[g.s[j]].dsize = realloc(n[g.s[j]].dsize, alloc[g.s[j]] * sizeof(unsigned int));
             }
+            
+            // compute penalty reduction for size of outbreak
+            n[g.s[j]].dsize[n[g.s[j]].ni - 1] = g.ns - n[g.s[j]].dsize[n[g.s[j]].ni - 1];
             
             // set heap and time back to NONE
             n[g.s[j]].heap = n[g.s[j]].time = NONE;
