@@ -13,7 +13,7 @@
 #include <string.h>
 
 // number of simulation runs
-#define NSIM 1000000
+#define NSIM 100000
 
 // NONE and END are used in various ways, the only purpose of NONE < END is for the S(x) macro
 // UINT_MAX is the maximum value for an object of type unsigned int.
@@ -90,7 +90,6 @@ extern unsigned int exptime ();
 extern void progress_bar (char label[], int step, int total);
 extern void sort_by_degree ();
 extern void shuffle_nodes ();
-extern unsigned int rnd_bounded (unsigned int lower, unsigned int upper);
 
 // quick.c
 extern void quick (unsigned int);

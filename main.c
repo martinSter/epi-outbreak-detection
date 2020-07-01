@@ -26,7 +26,7 @@ int main (int argc, char *argv[]) {
 	
 	// just a help message
 	if ((argc < 5) || (argc > 5)) {
-		fprintf(stderr, "usage: ./main [data file] [beta] [nu (units of the duration of the data)] [seed]\n");
+		fprintf(stderr, "usage: ./main [data file] [beta] [recovery scale] [seed]\n");
 		return 1;
 	}
     
@@ -61,7 +61,9 @@ int main (int argc, char *argv[]) {
 		g.rnd2inx[i] = (unsigned short) floor(d * log((i + 1) / 65536.0));
 	
     // compute recovery parameter
-    g.recovery_scale = g.dur / atof(argv[3]);
+    g.recovery_scale = atof(argv[3]);
+    
+    printf("Recovery scale is %f\n", g.recovery_scale);
     
     // initialize random number generator
     g.state = (uint64_t) strtoull(argv[4], NULL, 10);
@@ -74,7 +76,7 @@ int main (int argc, char *argv[]) {
     // SIMULATION OF OUTBREAKS
     
     // simulate NSIM times and store scenario ID's in 'n'
-    simulate(500, 680);
+    simulate(680, 860);
     
     // Initialize maximum element 
     unsigned int max_val = n[0].ni, max_node = 0; 
@@ -111,12 +113,6 @@ int main (int argc, char *argv[]) {
     // SORT NODES BY DEGREE
     
     sort_by_degree();
-    
-    printf("Node %u has degree %u\n", g.deg[0], n[g.deg[0]].deg);
-    printf("Node %u has degree %u\n", g.deg[1], n[g.deg[1]].deg);
-    printf("Node %u has degree %u\n", g.deg[2], n[g.deg[2]].deg);
-    
-    printf("Node %u has degree %u\n", 11134, n[11134].deg);
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // RANDOMLY SHUFFLE NODES
@@ -209,6 +205,8 @@ int main (int argc, char *argv[]) {
     
     // close file
 	fclose(fp);
+    
+    // - - - - - - - - - - - - - - - -
     
     // open network data file
 	fp = fopen("results.txt", "w");

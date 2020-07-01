@@ -209,7 +209,7 @@ void progress_bar (char label[], int step, int total) {
 void sort_by_degree () {
     
     // declare integers
-    unsigned int i, j, temp1, temp2;
+    unsigned int i, j, k, temp1, temp2;
     
     // initialize array on the stack that holds degrees of nodes
     unsigned int degrees[g.n];
@@ -219,8 +219,34 @@ void sort_by_degree () {
     
     // loop over all nodes and fill arrays
     for (i = 0; i < g.n; i++) {
+        
+        // add node i to g.deg
         g.deg[i] = i;
-        degrees[i] = n[i].deg;
+        
+        // initialize degree of node i to 0
+        degrees[i] = 0;
+        
+        // loop over all neighbors of node i
+        for (j = 0; j < n[i].deg; j++) {
+            
+            // loop over all contacts with a given neighbor
+            for (k = 0; k < n[i].nc[j]; k++) {
+                
+                // test if some contact with given neighbor is within time period
+                if ((n[i].t[j][k] >= g.t_start) && (n[i].t[j][k] <= g.t_end)) {
+                    
+                    // increment degree count
+                    degrees[i]++;
+                    
+                    // go to next neighbor
+                    break;
+                    
+                }
+                
+            }
+        
+        }
+
     }
  
     // loop over array elements
@@ -246,6 +272,11 @@ void sort_by_degree () {
             }
         }
     }
+    
+    // print three top nodes
+    printf("Node %u has degree %u\n", g.deg[0], degrees[0]);
+    printf("Node %u has degree %u\n", g.deg[1], degrees[1]);
+    printf("Node %u has degree %u\n", g.deg[2], degrees[2]);
     
 }
 
@@ -280,15 +311,6 @@ void shuffle_nodes () {
         
     }
    
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// generate random numbers between lower and upper
-
-unsigned int rnd_bounded (unsigned int lower, unsigned int upper) {
-    
-    return (rand() % (upper - lower + 1)) + lower; 
-
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
