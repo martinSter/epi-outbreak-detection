@@ -387,15 +387,50 @@ void quickSort(int low, int high, unsigned int *out_sizes) {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // median
 
-double compute_median(unsigned int *out_sizes, unsigned int size_array) {
+void compute_median (unsigned int *out_sizes, unsigned int size_array) {
+    
+    // declare double
+    double med;
     
     // quicksort the array
     quickSort(0, size_array - 1, out_sizes); 
   
     // check for even case 
-    if (size_array % 2 != 0) return (double) out_sizes[size_array/2]; 
-    else return (double)(out_sizes[(size_array-1)/2] + out_sizes[size_array/2]) / 2.0;
+    if (size_array % 2 != 0) med = (double) out_sizes[size_array/2]; 
+    else med = (double)(out_sizes[(size_array-1)/2] + out_sizes[size_array/2]) / 2.0;
     
-} 
+    // print to command line
+    printf("Median outbreak size is %f\n", med);
+    
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// max and min
+
+void compute_max (unsigned int *out_sizes, unsigned int size_array) {
+    
+    // Initialize maximum element 
+    unsigned int i, max_val = out_sizes[0];
+  
+    // Traverse array elements from second and compare every element with current max   
+    for (i = 1; i < size_array; i++) if (out_sizes[i] > max_val) max_val = out_sizes[i];
+    
+    // print to command line
+    printf("Max. outbreak size is %u\n", max_val);
+    
+}
+
+void compute_min (unsigned int *out_sizes, unsigned int size_array) {
+    
+    // Initialize maximum element 
+    unsigned int i, min_val = out_sizes[0];
+  
+    // Traverse array elements from second and compare every element with current max   
+    for (i = 1; i < size_array; i++) if (out_sizes[i] < min_val) min_val = out_sizes[i];
+    
+    // print to command line
+    printf("Min. outbreak size is %u\n", min_val);
+    
+}
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

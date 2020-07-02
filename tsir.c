@@ -193,15 +193,161 @@ void simulate (unsigned int t_start, unsigned int t_end) {
         // set heap and time for every node to NONE
         n[i].heap = n[i].time = NONE;
     }
-	
-	// run the simulations
-	for (i = 0; i < NSIM; i++) {
+    
+    // initialize i to 0
+    i = 0;
+    
+    // simulate until we have NSIM scenarios
+    while (i < NSIM) {
         
         // store current simulation id in globals
         g.sim_id = i;
         
         // run sir() NSIM times
 		sir();
+        
+        // if outbreak is smaller than MIN_OUTSIZE:
+        if (g.ns < MIN_OUTSIZE) {
+            
+            // loop over all infected nodes
+            for (j = 0; j < g.ns; j++) {
+                
+                // set outbreak counter back to previous value
+                n[g.s[j]].ni--;
+                
+                // set heap and time back to NONE
+                n[g.s[j]].heap = n[g.s[j]].time = NONE;
+            
+            }
+            
+            // jump to next iteration of the loop
+            continue;
+        }
+        
+        // set time of infected and recovered nodes back to NONE
+        for (j = 0; j < g.ns; j++) {
+            
+            // check if we need to allocate more memory to 'inf', 'dtime', and 'dsize'
+            if (alloc[g.s[j]] == n[g.s[j]].ni) {
+                // add 1000 to alloc
+                alloc[g.s[j]] += 1000;
+                // reallocate memory of 'inf', 'dtime', and 'dsize'
+                n[g.s[j]].inf = realloc(n[g.s[j]].inf, alloc[g.s[j]] * sizeof(unsigned int));
+                n[g.s[j]].dtime = realloc(n[g.s[j]].dtime, alloc[g.s[j]] * sizeof(unsigned int));
+                n[g.s[j]].dsize = realloc(n[g.s[j]].dsize, alloc[g.s[j]] * sizeof(unsigned int));
+            }
+            
+            // compute penalty reduction for size of outbreak
+            n[g.s[j]].dsize[n[g.s[j]].ni - 1] = g.ns - n[g.s[j]].dsize[n[g.s[j]].ni - 1];
+            
+            // set heap and time back to NONE
+            n[g.s[j]].heap = n[g.s[j]].time = NONE;
+        }
+        
+        // store outbreak size
+        g.outbreak_sizes[i] = g.ns;
+    
+        // print progress bar
+        progress_bar("Simulation progress: ", i, NSIM);
+        
+        // increment i
+        i++;
+	
+    }
+    
+    // since not all simulation runs infect every node,
+    // we reallocate memory correctly
+    for (i = 0; i < g.n; i++) {
+        n[i].inf = realloc(n[i].inf, n[i].ni * sizeof(unsigned int));
+        n[i].dtime = realloc(n[i].dtime, n[i].ni * sizeof(unsigned int));
+        n[i].dsize = realloc(n[i].dsize, n[i].ni * sizeof(unsigned int));
+    }
+    
+    // sum up all outbreak sizes
+    for (i = 0; i < NSIM; i++) s += (double) g.outbreak_sizes[i];
+    
+    // print average outbreak size to command line
+    printf("\nAverage outbreak size in training phase is %f\n", s /= NSIM);
+    
+    // compute median outbreak size
+    // compute_median(g.outbreak_sizes, NSIM);
+    
+    // compute min and max outbreak size
+    compute_min(g.outbreak_sizes, NSIM);
+    compute_max(g.outbreak_sizes, NSIM);
+    
+    // free memory allocated to g.s and alloc
+	free(g.s); free(g.outbreak_sizes); free(alloc);
+
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// create evaluation set of scenarios
+
+void simulate_eval (unsigned int neval, unsigned int t_start, unsigned int t_end) {
+    
+    // declare integers i
+	unsigned int i, j;
+    
+    // declare double for avg. outbreak size
+    double s = 0.0;
+    
+    // set start and end time in GLOBALS
+    g.t_start = t_start;
+    g.t_end = t_end;
+    
+    // allocate memory to g.outbreak_sizes
+    g.outbreak_sizes = calloc(neval, sizeof(unsigned int));
+    
+    // allocate memory to g.s (array containing the nodes that are infected/recovered
+    g.s = calloc(g.n, sizeof(unsigned int));
+    
+    // allocate memory to alloc
+    alloc = calloc(g.n, sizeof(unsigned int));
+
+	// initialize different things
+	for (i = 0; i < g.n; i++) {
+        // initialize all ni to 0
+        n[i].ni = 0;
+        // initialize alloc to 1000 for all nodes
+        alloc[i] = 1000;
+        // allocate memory for arrays that store simulation runs that infect node i
+        n[i].inf = calloc(1000, sizeof(unsigned int));
+        n[i].dtime = calloc(1000, sizeof(unsigned int));
+        n[i].dsize = calloc(1000, sizeof(unsigned int));
+        // set heap and time for every node to NONE
+        n[i].heap = n[i].time = NONE;
+    }
+    
+    // initialize i to 0
+    i = 0;
+    
+    // simulate until we have 'neval' scenarios
+    while (i < neval) {
+        
+        // store current simulation id in globals
+        g.sim_id = i;
+        
+        // run sir() neval times
+		sir();
+        
+        // if outbreak is smaller than MIN_OUTSIZE:
+        if (g.ns < MIN_OUTSIZE) {
+            
+            // loop over all infected nodes
+            for (j = 0; j < g.ns; j++) {
+                
+                // set outbreak counter back to previous value
+                n[g.s[j]].ni--;
+                
+                // set heap and time back to NONE
+                n[g.s[j]].heap = n[g.s[j]].time = NONE;
+            
+            }
+            
+            // jump to next iteration of the loop
+            continue;
+        }
         
         // set time of infected and recovered nodes back to NONE
         for (j = 0; j < g.ns; j++) {
@@ -226,9 +372,9 @@ void simulate (unsigned int t_start, unsigned int t_end) {
         
         // store outbreak size
         g.outbreak_sizes[i] = g.ns;
-    
-        // print progress bar
-        progress_bar("Simulation progress: ", i, NSIM);
+        
+        // increment i
+        i++;
 	
     }
     
@@ -241,96 +387,17 @@ void simulate (unsigned int t_start, unsigned int t_end) {
     }
     
     // sum up all outbreak sizes
-    for (i = 0; i < NSIM; i++) s += (double) g.outbreak_sizes[i];
+    for (i = 0; i < neval; i++) s += (double) g.outbreak_sizes[i];
     
     // print average outbreak size to command line
-    printf("\nAverage outbreak size in training phase is %f\n", s /= NSIM);
+    printf("Average outbreak size in testing phase is %f\n", s /= neval);
     
-    // compute median outbreak size
-    double med = compute_median(g.outbreak_sizes, NSIM);
-    
-    // print median outbreak size to command line
-    printf("Median outbreak size is %f\n", med);
+    // compute min and max outbreak size
+    compute_min(g.outbreak_sizes, neval);
+    compute_max(g.outbreak_sizes, neval);
     
     // free memory allocated to g.s and alloc
 	free(g.s); free(g.outbreak_sizes); free(alloc);
-
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// create evaluation set of scenarios
-
-void simulate_eval (unsigned int neval, unsigned int t_start, unsigned int t_end) {
-    
-    // declare integers i
-	unsigned int i, j;
-    
-    // set start and end time in GLOBALS
-    g.t_start = t_start;
-    g.t_end = t_end;
-    
-    // allocate memory to g.s (array containing the nodes that are infected/recovered
-    g.s = calloc(g.n, sizeof(unsigned int));
-    
-    // allocate memory to alloc
-    alloc = calloc(g.n, sizeof(unsigned int));
-
-	// initialize different things
-	for (i = 0; i < g.n; i++) {
-        // initialize all ni to 0
-        n[i].ni = 0;
-        // initialize alloc to 1000 for all nodes
-        alloc[i] = 1000;
-        // allocate memory for arrays that store simulation runs that infect node i
-        n[i].inf = calloc(1000, sizeof(unsigned int));
-        n[i].dtime = calloc(1000, sizeof(unsigned int));
-        n[i].dsize = calloc(1000, sizeof(unsigned int));
-        // set heap and time for every node to NONE
-        n[i].heap = n[i].time = NONE;
-    }
-	
-	// run the simulations
-	for (i = 0; i < neval; i++) {
-        
-        // store current simulation id in globals
-        g.sim_id = i;
-        
-        // run sir() neval times
-		sir();
-        
-        // set time of infected and recovered nodes back to NONE
-        for (j = 0; j < g.ns; j++) {
-            
-            // check if we need to allocate more memory to 'inf', 'dtime', and 'dsize'
-            if (alloc[g.s[j]] == n[g.s[j]].ni) {
-                // add 1000 to alloc
-                alloc[g.s[j]] += 1000;
-                // reallocate memory of 'inf', 'dtime', and 'dsize'
-                n[g.s[j]].inf = realloc(n[g.s[j]].inf, alloc[g.s[j]] * sizeof(unsigned int));
-                n[g.s[j]].dtime = realloc(n[g.s[j]].dtime, alloc[g.s[j]] * sizeof(unsigned int));
-                n[g.s[j]].dsize = realloc(n[g.s[j]].dsize, alloc[g.s[j]] * sizeof(unsigned int));
-            }
-            
-            // compute penalty reduction for size of outbreak
-            n[g.s[j]].dsize[n[g.s[j]].ni - 1] = g.ns - n[g.s[j]].dsize[n[g.s[j]].ni - 1];
-            
-            // set heap and time back to NONE
-            n[g.s[j]].heap = n[g.s[j]].time = NONE;
-        
-        }
-	
-    }
-    
-    // since not all simulation runs infect every node,
-    // we reallocate memory correctly
-    for (i = 0; i < g.n; i++) {
-        n[i].inf = realloc(n[i].inf, n[i].ni * sizeof(unsigned int));
-        n[i].dtime = realloc(n[i].dtime, n[i].ni * sizeof(unsigned int));
-        n[i].dsize = realloc(n[i].dsize, n[i].ni * sizeof(unsigned int));
-    }
-    
-    // free memory allocated to g.s and alloc
-	free(g.s); free(alloc);
 
 }
 

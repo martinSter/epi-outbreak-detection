@@ -13,7 +13,10 @@
 #include <string.h>
 
 // number of simulation runs
-#define NSIM 100000
+#define NSIM 1000000
+
+// minimal outbreak size for scenario generation
+#define MIN_OUTSIZE 5
 
 // NONE and END are used in various ways, the only purpose of NONE < END is for the S(x) macro
 // UINT_MAX is the maximum value for an object of type unsigned int.
@@ -93,7 +96,9 @@ extern void progress_bar (char label[], int step, int total);
 extern void sort_by_degree ();
 extern void shuffle_nodes ();
 extern void quickSort(int low, int high, unsigned int *out_sizes);
-extern double compute_median(unsigned int *out_sizes, unsigned int size_array);
+extern void compute_median (unsigned int *out_sizes, unsigned int size_array);
+extern void compute_min (unsigned int *out_sizes, unsigned int size_array);
+extern void compute_max (unsigned int *out_sizes, unsigned int size_array);
 
 // quick.c
 extern void quick (unsigned int);
