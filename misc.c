@@ -281,6 +281,76 @@ void sort_by_degree () {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// sort nodes by number of links
+
+void sort_by_links () {
+    
+    // declare integers
+    unsigned int i, j, k, temp1, temp2;
+    
+    // initialize array on the stack that holds degrees of nodes
+    unsigned int links[g.n];
+    
+    // allocate memory to g.lin
+    g.lin = malloc(g.n * sizeof(unsigned int));
+    
+    // loop over all nodes and fill arrays
+    for (i = 0; i < g.n; i++) {
+        
+        // add node i to g.lin
+        g.lin[i] = i;
+        
+        // initialize degree of node i to 0
+        links[i] = 0;
+        
+        // loop over all neighbors of node i
+        for (j = 0; j < n[i].deg; j++) {
+            
+            // loop over all contacts with a given neighbor
+            for (k = 0; k < n[i].nc[j]; k++) {
+                
+                // test if some contact with given neighbor is within time period
+                if ((n[i].t[j][k] >= g.t_start) && (n[i].t[j][k] <= g.t_end)) {
+                    
+                    // increment degree count
+                    links[i]++;
+                }
+            }
+        }
+    }
+ 
+    // loop over array elements
+    for (i = 0; i < g.n; i++) {
+        
+        // loop over all array elements after i-th element
+        for (j = i + 1; j < g.n; j++) {
+            
+            // swap elements if i-th element is smaller than j-th element
+            if (links[i] < links[j]) {
+                
+                // store node and degree at i in temp
+                temp1 = g.lin[i];
+                temp2 = links[i];
+                
+                // set i to j
+                g.lin[i] = g.lin[j];
+                links[i] = links[j];
+                
+                // set j from temp
+                g.lin[j] = temp1;
+                links[j] = temp2;
+            }
+        }
+    }
+    
+    // print three top nodes
+    printf("Node %u has %u links\n", g.lin[0], links[0]);
+    printf("Node %u has %u links\n", g.lin[1], links[1]);
+    printf("Node %u has %u links\n", g.lin[2], links[2]);
+    
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // randomize node order
 
 void shuffle_nodes () {

@@ -16,7 +16,7 @@
 #define NSIM 1000000
 
 // minimal outbreak size for scenario generation
-#define MIN_OUTSIZE 5
+#define MIN_OUTSIZE 2
 
 // NONE and END are used in various ways, the only purpose of NONE < END is for the S(x) macro
 // UINT_MAX is the maximum value for an object of type unsigned int.
@@ -50,11 +50,14 @@ typedef struct GLOBALS {
     // STORE ALL OUTBREAK SIZES
     unsigned int *outbreak_sizes;
     // array to store optimal node order
-    unsigned int *on, *dt, *pa, *deg, *ran;
+    unsigned int *on, *dt, *pa, *deg, *lin, *ran;
     // store number of detected scenarios and scenario IDs
     unsigned int nd, *detected;
     // store results
-    unsigned int *res_greedy, *res_greedy_dt, *res_greedy_pa, *res_degree, *res_degree_dt, *res_degree_pa, *res_random, *res_random_dt, *res_random_pa;
+    unsigned int *res_greedy, *res_greedy_dt, *res_greedy_pa;
+    unsigned int *res_degree, *res_degree_dt, *res_degree_pa;
+    unsigned int *res_links, *res_links_dt, *res_links_pa;
+    unsigned int *res_random, *res_random_dt, *res_random_pa;
 } GLOBALS;
 
 // struct to define nodes
@@ -94,6 +97,7 @@ extern void read_data (FILE *);
 extern unsigned int exptime ();
 extern void progress_bar (char label[], int step, int total);
 extern void sort_by_degree ();
+extern void sort_by_links ();
 extern void shuffle_nodes ();
 extern void quickSort(int low, int high, unsigned int *out_sizes);
 extern void compute_median (unsigned int *out_sizes, unsigned int size_array);

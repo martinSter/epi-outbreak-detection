@@ -115,6 +115,11 @@ int main (int argc, char *argv[]) {
     sort_by_degree();
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // SORT NODES BY # LINKS
+    
+    sort_by_links();
+    
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // RANDOMLY SHUFFLE NODES
     
     shuffle_nodes();
@@ -136,6 +141,9 @@ int main (int argc, char *argv[]) {
     g.res_degree = calloc(g.n, sizeof(unsigned int));
     g.res_degree_dt = calloc(g.n, sizeof(unsigned int));
     g.res_degree_pa = calloc(g.n, sizeof(unsigned int));
+    g.res_links = calloc(g.n, sizeof(unsigned int));
+    g.res_links_dt = calloc(g.n, sizeof(unsigned int));
+    g.res_links_pa = calloc(g.n, sizeof(unsigned int));
     g.res_random = calloc(g.n, sizeof(unsigned int));
     g.res_random_dt = calloc(g.n, sizeof(unsigned int));
     g.res_random_pa = calloc(g.n, sizeof(unsigned int));
@@ -274,6 +282,70 @@ int main (int argc, char *argv[]) {
     }
     
     // - - - - - - - - - - - - -
+    // RESULTS LINKS
+    
+    // - - - - - -
+    // DL
+    
+    // set all elements in g.detected back to 0
+    memset(g.detected, 0, neval*sizeof(unsigned int));
+    
+    // loop over g.on and find marginal improvements
+    for (i = 0; i < g.n; i++) {
+        
+        // set all scenarios that node v detects to 1
+        for (j = 0; j < n[g.lin[i]].ni; j++) g.detected[n[g.lin[i]].inf[j]] = 1;
+        
+        // sum number of detected cases
+        for (k = 0; k < neval; k++) g.res_links[i] += g.detected[k]; 
+        
+    }
+    
+    // - - - - - -
+    // DT
+    
+    // set all elements in g.detected back to 0
+    memset(g.detected, 0, neval*sizeof(unsigned int));
+    
+    // loop over g.dt and find marginal improvements
+    for (i = 0; i < g.n; i++) {
+        
+        // set all scenarios that node v detects to 1
+        for (j = 0; j < n[g.lin[i]].ni; j++) {
+            
+            // if penalty reduction of current node is larger than previous reduction, then replace it
+            if (n[g.lin[i]].dtime[j] > g.detected[n[g.lin[i]].inf[j]]) g.detected[n[g.lin[i]].inf[j]] = n[g.lin[i]].dtime[j];          
+            
+        }
+        
+        // sum up total penalty reduction
+        for (k = 0; k < neval; k++) g.res_links_dt[i] += g.detected[k]; 
+        
+    }
+    
+    // - - - - - -
+    // PA
+    
+    // set all elements in g.detected back to 0
+    memset(g.detected, 0, neval*sizeof(unsigned int));
+    
+    // loop over g.dt and find marginal improvements
+    for (i = 0; i < g.n; i++) {
+        
+        // set all scenarios that node v detects to 1
+        for (j = 0; j < n[g.lin[i]].ni; j++) {
+            
+            // if penalty reduction of current node is larger than previous reduction, then replace it
+            if (n[g.lin[i]].dsize[j] > g.detected[n[g.lin[i]].inf[j]]) g.detected[n[g.lin[i]].inf[j]] = n[g.lin[i]].dsize[j];          
+            
+        }
+        
+        // sum up total penalty reduction
+        for (k = 0; k < neval; k++) g.res_links_pa[i] += g.detected[k]; 
+        
+    }
+    
+    // - - - - - - - - - - - - -
     // RESULTS RANDOM
     
     // - - - - - -
@@ -349,7 +421,7 @@ int main (int argc, char *argv[]) {
 	}
     
     // print optimal nodes to file
-    for (i = 0; i < g.n; i++) fprintf(fp, "%u;%u;%u;%u;%u\n", g.on[i], g.dt[i], g.pa[i], g.deg[i], g.ran[i]);
+    for (i = 0; i < g.n; i++) fprintf(fp, "%u;%u;%u;%u;%u;%u\n", g.on[i], g.dt[i], g.pa[i], g.deg[i], g.lin[i], g.ran[i]);
     
     // print data
     // for (i = 0; i < g.n; i++) fprintf(fp, "%u;%u;%u;%u;%u;%u\n", g.on[i], g.res_greedy[i], g.deg[i], g.res_degree[i], g.ran[i], g.res_random[i]);
@@ -368,7 +440,7 @@ int main (int argc, char *argv[]) {
 	}
     
     // print data
-    for (i = 0; i < g.n; i++) fprintf(fp, "%u;%u;%u;%u;%u;%u;%u;%u;%u\n", g.res_greedy[i], g.res_greedy_dt[i], g.res_greedy_pa[i], g.res_degree[i], g.res_degree_dt[i], g.res_degree_pa[i], g.res_random[i], g.res_random_dt[i], g.res_random_pa[i]);
+    for (i = 0; i < g.n; i++) fprintf(fp, "%u;%u;%u;%u;%u;%u;%u;%u;%u;%u;%u;%u\n", g.res_greedy[i], g.res_greedy_dt[i], g.res_greedy_pa[i], g.res_degree[i], g.res_degree_dt[i], g.res_degree_pa[i], g.res_links[i], g.res_links_dt[i], g.res_links_pa[i], g.res_random[i], g.res_random_dt[i], g.res_random_pa[i]);
     
     // close file
 	fclose(fp);
@@ -390,9 +462,10 @@ int main (int argc, char *argv[]) {
     
     // free array n of NODE structs and heap and s (only heap and s are defined as pointers in GLOBALS)
 	free(n); free(g.heap); free(g.detected);
-    free(g.on); free(g.dt); free(g.pa); free(g.deg); free(g.ran);
+    free(g.on); free(g.dt); free(g.pa); free(g.deg); free(g.lin); free(g.ran);
     free(g.res_greedy); free(g.res_greedy_dt); free(g.res_greedy_pa);
     free(g.res_degree); free(g.res_degree_dt); free(g.res_degree_pa);
+    free(g.res_links); free(g.res_links_dt); free(g.res_links_pa);
     free(g.res_random); free(g.res_random_dt); free(g.res_random_pa);
 	 
 	return 0;
