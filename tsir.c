@@ -397,7 +397,7 @@ void simulate_eval (unsigned int neval, unsigned int t_start, unsigned int t_end
     compute_max(g.outbreak_sizes, neval);
     
     // free memory allocated to g.s and alloc
-	free(g.s); free(g.outbreak_sizes); free(alloc);
+	free(g.s); free(alloc);
 
 }
 

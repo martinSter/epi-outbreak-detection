@@ -13,7 +13,7 @@
 #include <string.h>
 
 // number of simulation runs
-#define NSIM 1000000
+#define NSIM 5000000
 
 // minimal outbreak size for scenario generation
 #define MIN_OUTSIZE 2

@@ -76,7 +76,7 @@ int main (int argc, char *argv[]) {
     // SIMULATION OF OUTBREAKS
     
     // simulate NSIM times and store scenario ID's in 'n'
-    simulate(0, 179);
+    simulate(720, 1079);
     
     // Initialize maximum element 
     unsigned int max_val = n[0].ni, max_node = 0; 
@@ -149,7 +149,7 @@ int main (int argc, char *argv[]) {
     g.res_random_pa = calloc(g.n, sizeof(unsigned int));
     
     // create evaluation set of outbreak scenarios
-    simulate_eval(neval, 0, 179);
+    simulate_eval(neval, 720, 1079);
     
     // allocate memory to g.detected
     g.detected = calloc(neval, sizeof(unsigned int));
@@ -445,6 +445,22 @@ int main (int argc, char *argv[]) {
     // close file
 	fclose(fp);
     
+    // - - - - - - - - - - - - - - - -
+    
+    // open network data file
+	fp = fopen("outsizes.txt", "w");
+	if (!fp) {
+        // print error if we cannot open file
+		fprintf(stderr, "can't open file\n");
+		return 1;
+	}
+    
+    // print data
+    for (i = 0; i < neval; i++) fprintf(fp, "%u\n", g.outbreak_sizes[i]);
+    
+    // close file
+	fclose(fp);
+    
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // CLEANING UP
     
@@ -467,6 +483,7 @@ int main (int argc, char *argv[]) {
     free(g.res_degree); free(g.res_degree_dt); free(g.res_degree_pa);
     free(g.res_links); free(g.res_links_dt); free(g.res_links_pa);
     free(g.res_random); free(g.res_random_dt); free(g.res_random_pa);
+    free(g.outbreak_sizes);
 	 
 	return 0;
 }
