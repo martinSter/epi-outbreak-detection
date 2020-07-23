@@ -23,6 +23,10 @@ int main (int argc, char *argv[]) {
     
     // declare pointer to FILE
 	FILE *fp;
+    
+#ifdef TIME
+	struct timespec t0, t1, t2, t3;
+#endif
 	
 	// just a help message
 	if ((argc < 5) || (argc > 5)) {
@@ -75,8 +79,17 @@ int main (int argc, char *argv[]) {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // SIMULATION OF OUTBREAKS
     
+#ifdef TIME
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t0);
+#endif
+    
     // simulate NSIM times and store scenario ID's in 'n'
     simulate(720, 1079);
+    
+#ifdef TIME
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t1);
+    printf("time for simulations (s): %g\n", ((t1.tv_sec - t0.tv_sec) + 1.0e-9 * (t1.tv_nsec - t0.tv_nsec)));
+#endif
     
     // Initialize maximum element 
     unsigned int max_val = n[0].ni, max_node = 0; 
@@ -98,10 +111,19 @@ int main (int argc, char *argv[]) {
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // GREEDY MAXIMIZATION
     
+#ifdef TIME
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t2);
+#endif
+    
     greedy_max_dl();
     greedy_max_dt();
     greedy_max_pa();
     
+#ifdef TIME
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t3);
+    printf("time greedy optimization (s): %g\n", ((t3.tv_sec - t2.tv_sec) + 1.0e-9 * (t3.tv_nsec - t2.tv_nsec)));
+#endif
+
     // free memory allocated to inf, dtime, and dsize
     for (i = 0; i < g.n; i++) {
         free(n[i].inf);
@@ -148,6 +170,11 @@ int main (int argc, char *argv[]) {
     g.res_random_dt = calloc(g.n, sizeof(unsigned int));
     g.res_random_pa = calloc(g.n, sizeof(unsigned int));
     
+    g.frac_det = calloc(neval, sizeof(unsigned int));
+    g.frac_det_dt = calloc(neval, sizeof(unsigned int));
+    g.frac_det_pa = calloc(neval, sizeof(unsigned int));
+    
+    
     // create evaluation set of outbreak scenarios
     simulate_eval(neval, 720, 1079);
     
@@ -155,6 +182,42 @@ int main (int argc, char *argv[]) {
     g.detected = calloc(neval, sizeof(unsigned int));
     
     printf("Starting evaluation\n");
+    
+    // - - - - - - - - - - - - -
+    // FOR EVERY OUTBREAK, CHECK IF TOP 200 NODES DETECT IT
+    
+    // - - - - - -
+    // DL
+    
+    // loop over g.on and find marginal improvements
+    for (i = 0; i < 200; i++) {
+        
+        // set all scenarios that node v detects to 1
+        for (j = 0; j < n[g.on[i]].ni; j++) g.frac_det[n[g.on[i]].inf[j]] = 1; 
+        
+    }
+    
+    // - - - - - -
+    // DT
+    
+    // loop over g.on and find marginal improvements
+    for (i = 0; i < 200; i++) {
+        
+        // set all scenarios that node v detects to 1
+        for (j = 0; j < n[g.dt[i]].ni; j++) g.frac_det_dt[n[g.dt[i]].inf[j]] = 1; 
+        
+    }
+    
+    // - - - - - -
+    // PA
+    
+    // loop over g.on and find marginal improvements
+    for (i = 0; i < 200; i++) {
+        
+        // set all scenarios that node v detects to 1
+        for (j = 0; j < n[g.pa[i]].ni; j++) g.frac_det_pa[n[g.pa[i]].inf[j]] = 1; 
+        
+    }
     
     // - - - - - - - - - - - - -
     // RESULTS GREEDY
@@ -456,7 +519,7 @@ int main (int argc, char *argv[]) {
 	}
     
     // print data
-    for (i = 0; i < neval; i++) fprintf(fp, "%u\n", g.outbreak_sizes[i]);
+    for (i = 0; i < neval; i++) fprintf(fp, "%u;%u;%u;%u\n", g.outbreak_sizes[i], g.frac_det[i], g.frac_det_dt[i], g.frac_det_pa[i]);
     
     // close file
 	fclose(fp);
@@ -484,6 +547,7 @@ int main (int argc, char *argv[]) {
     free(g.res_links); free(g.res_links_dt); free(g.res_links_pa);
     free(g.res_random); free(g.res_random_dt); free(g.res_random_pa);
     free(g.outbreak_sizes);
+    free(g.frac_det); free(g.frac_det_dt); free(g.frac_det_pa);
 	 
 	return 0;
 }

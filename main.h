@@ -16,7 +16,7 @@
 #define NSIM 5000000
 
 // minimal outbreak size for scenario generation
-#define MIN_OUTSIZE 2
+#define MIN_OUTSIZE 5
 
 // NONE and END are used in various ways, the only purpose of NONE < END is for the S(x) macro
 // UINT_MAX is the maximum value for an object of type unsigned int.
@@ -58,6 +58,7 @@ typedef struct GLOBALS {
     unsigned int *res_degree, *res_degree_dt, *res_degree_pa;
     unsigned int *res_links, *res_links_dt, *res_links_pa;
     unsigned int *res_random, *res_random_dt, *res_random_pa;
+    unsigned int *frac_det, *frac_det_dt, *frac_det_pa;
 } GLOBALS;
 
 // struct to define nodes
