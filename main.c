@@ -1,5 +1,7 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// code for SIR on temporal networks by Petter Holme (2018)
+// Outbreak detection for temporal networks - main script
+// Note that the code is heavily based on code provided by Petter Holme (many thanks!):
+// https://github.com/pholme/tsir
 
 // include header file
 #include "main.h"

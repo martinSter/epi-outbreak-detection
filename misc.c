@@ -174,7 +174,7 @@ void read_data (FILE *fp) {
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// function to print progress bar
+// function to print progress bar for simulations
 
 void progress_bar (char label[], int step, int total) {
     
