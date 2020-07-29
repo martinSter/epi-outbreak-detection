@@ -1,6 +1,6 @@
 # Selecting nodes for outbreak detection with greedy optimization
 
-The code in this repository is heavily based on beautiful (and fast!) C code written by Petter Holme. Thanks for sharing it. The code can be found here: https://github.com/pholme/tsir. By studying his code in detail, I became a better C programmer (still ways to go...).
+The code in this repository is heavily based on beautiful (and fast!) C code written by Petter Holme. Thanks for sharing it. The code can be found here: https://github.com/pholme/tsir. By studying his code in detail, I became a better C programmer (still a long ways to go...).
 
 The code can be compiled as follows:
 1. Create a directory o for the object files.
